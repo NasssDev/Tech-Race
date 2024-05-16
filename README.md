@@ -1,5 +1,8 @@
 
-# HETC Web: Tech Race
+# HETC Web: “ Tech-Race “
+
+![image](https://github.com/NasssDev/Tech-Race/assets/167258734/8022059e-d34b-422f-9010-bf8d8fdd7132)
+
 
 ## Description du Projet
 
