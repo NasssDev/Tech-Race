@@ -27,6 +27,6 @@ type Video struct {
 	VideoURL string
 }
 
-type Database interface {
+type DatabaseInterface interface {
 	GetAll() ([]Session, error)
 }

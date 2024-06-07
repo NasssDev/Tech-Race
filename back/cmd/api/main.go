@@ -15,7 +15,6 @@ func main() {
 	db := database.Connect(cfg.DatabaseUrl)
 
 	dbWrapper := database.NewDatabase(db)
-	_, _ = dbWrapper.GetAll()
 
 	sessionService := services.NewSessionService(dbWrapper)
 

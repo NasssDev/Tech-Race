@@ -6,17 +6,18 @@ import (
 )
 
 type SessionService struct {
-	db models.Database
+	db models.DatabaseInterface
 }
 
-func NewSessionService(db models.Database) *SessionService {
+func NewSessionService(db models.DatabaseInterface) *SessionService {
 	return &SessionService{db: db}
 }
 
-func (s *SessionService) GetAll() {
+func (s *SessionService) GetAll() ([]models.Session, error) {
 	sessions, err := s.db.GetAll()
 	if err != nil {
-		return
+		return nil, err
 	}
 	fmt.Println(sessions)
+	return sessions, nil
 }
