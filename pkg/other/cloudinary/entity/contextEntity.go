@@ -35,7 +35,7 @@ func NewContextEntity() *ContextEntity {
 	return &ContextEntity{Cld: cld, Ctx: ctx, CloudName: cloudName}
 }
 
-func (e *ContextEntity) UploadImage(imageURL, publicID string) (*uploader.UploadResult, error) {
+func (e *ContextEntity) UploadImage(imageURL string, publicID string) (*uploader.UploadResult, error) {
 	return e.Cld.Upload.Upload(e.Ctx, imageURL, uploader.UploadParams{
 		PublicID:       publicID,
 		UniqueFilename: api.Bool(false),
@@ -43,7 +43,7 @@ func (e *ContextEntity) UploadImage(imageURL, publicID string) (*uploader.Upload
 	})
 }
 
-func (e *ContextEntity) UploadVideo(videoURL, publicID string) (*uploader.UploadResult, error) {
+func (e *ContextEntity) UploadVideo(videoURL string, publicID string) (*uploader.UploadResult, error) {
 	return e.Cld.Upload.Upload(e.Ctx, videoURL, uploader.UploadParams{
 		PublicID:       publicID,
 		UniqueFilename: api.Bool(false),
