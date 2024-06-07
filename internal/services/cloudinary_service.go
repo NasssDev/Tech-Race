@@ -6,10 +6,10 @@ import (
 )
 
 type CloudinaryService struct {
-	db models.Database
+	db models.DatabaseInterface
 }
 
-func NewCloudinaryService(db models.Database) *CloudinaryService {
+func NewCloudinaryService(db models.DatabaseInterface) *CloudinaryService {
 	return &CloudinaryService{db: db}
 }
 
