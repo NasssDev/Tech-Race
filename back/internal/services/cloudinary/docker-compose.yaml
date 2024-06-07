@@ -1,0 +1,18 @@
+version: "3.8"
+
+services:
+  web:
+    build:
+      context: .
+      dockerfile: dev.Dockerfile
+    container_name: cloudinarace
+    restart: always
+    tty: true
+    environment:
+      - CLOUDINARY_ID= ${CLOUDINARY_ID}
+      - CLOUDINARY_URL= ${CLOUDINARY_URL}
+      - PORT=8097
+    ports:
+      - "8097:8097"
+    volumes:
+      - ./:/app
