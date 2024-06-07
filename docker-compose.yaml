@@ -1,0 +1,25 @@
+services:
+
+  db:
+    container_name: tech_race_db
+    image: postgres
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+        POSTGRES_USER: root
+        POSTGRES_PASSWORD: password
+        POSTGRES_DB: tech_race
+    command: ["postgres", "-c", "listen_addresses=*"]
+
+  adminer:
+    container_name: tech_race_adminer
+    image: adminer
+    restart: always
+    ports:
+      - "8089:8080"
+    depends_on:
+      - db
+
+volumes:
+  db-data:
