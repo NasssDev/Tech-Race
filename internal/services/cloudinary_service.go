@@ -20,3 +20,7 @@ func (s *CloudinaryService) GetAllVideos() {
 	}
 	fmt.Println(sessions)
 }
+
+func (s *CloudinaryService) uploadVideo() {
+
+}
