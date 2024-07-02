@@ -8,6 +8,7 @@ import (
 	"log"
 	"os"
 
+	"fmt"
 	"github.com/cloudinary/cloudinary-go/v2"
 )
 
@@ -24,8 +25,8 @@ func NewContextEntity() *ContextEntity {
 	}
 
 	cloudName := os.Getenv("CLOUDINARY_ID")
-
-	cld, err := cloudinary.New()
+	fmt.Printf("%q", cloudName)
+	cld, err := cloudinary.NewFromParams(cloudName, "A-JiJDrwaIpfMflMZ39esoHDLUA@dtgt8j8u8", "731224174341573")
 	if err != nil {
 		log.Fatalf("Failed to initialize Cloudinary, %v", err)
 	}

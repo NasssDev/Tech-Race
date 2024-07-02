@@ -1,4 +1,4 @@
-FROM golang:1.21
+FROM golang:1.22.3
 
 # Active le comportement de module indépendant
 ENV GO111MODULE=on

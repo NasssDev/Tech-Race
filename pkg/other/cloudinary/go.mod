@@ -6,6 +6,7 @@ require (
 	github.com/cloudinary/cloudinary-go/v2 v2.7.0
 	github.com/gin-gonic/gin v1.10.0
 	github.com/joho/godotenv v1.5.1
+	github.com/u2takey/ffmpeg-go v0.5.0
 )
 
 require (

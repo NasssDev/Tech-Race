@@ -1,12 +1,12 @@
 # syntax=docker/dockerfile:1
 
 # Build the application from source
-FROM golang:1.19 AS Builder
+FROM golang:1.22.3 AS Builder
 WORKDIR /app
 
 COPY . .
 RUN go mod download \
-    && go mod verify \
+    && go mod verify
 
 RUN GO111MODULE=on CGO_ENABLED=0 GOOS=linux go build -o /build/cloudinarace ./main/main.go
 
