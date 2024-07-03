@@ -28,7 +28,7 @@ func (s *SessionService) Start(isAutopilot bool) error {
 		return err
 	}
 	mqttClient := mqtt.NewMQTTClient(s.db)
-	mqttClient.ConnectAndSubscribe()
+	_ = mqttClient.ConnectAndSubscribe()
 	fmt.Println("Session started")
 	return nil
 }

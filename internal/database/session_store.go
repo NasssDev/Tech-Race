@@ -38,8 +38,8 @@ func (d *Database) IsSessionActive() (bool, error) {
 	return count > 0, nil
 }
 func (d *Database) InsertTrackData(data models.LineTracking) error {
-	query := `INSERT INTO LineTracking (line_tracking_value) VALUES ($1)`
-	_, err := d.db.Exec(query, data.LineTrackingValue)
+	query := `INSERT INTO LineTracking (line_tracking_value , id_session) VALUES ($1, $2)`
+	_, err := d.db.Exec(query, data.LineTrackingValue, data.IDSession)
 	if err != nil {
 		return err
 	}
