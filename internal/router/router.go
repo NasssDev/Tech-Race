@@ -16,6 +16,8 @@ func SetupRouter(sessionService *services.SessionService) *chi.Mux {
 	sessionHandler := handlers.NewSessionHandler(sessionService)
 
 	r.Get("/sessions", sessionHandler.GetAll())
+	r.Get("/sessions/start/{is_autopilot}", sessionHandler.Start())
+	r.Get("/sessions/stop", sessionHandler.Stop())
 
 	return r
 }

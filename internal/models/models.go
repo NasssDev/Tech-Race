@@ -3,30 +3,38 @@ package models
 import "time"
 
 type Session struct {
-	StartDate   time.Time
-	EndDate     time.Time
-	isAutopilot bool
+	ID          int       `db:"id"`
+	StartDate   time.Time `db:"start_time"`
+	EndDate     time.Time `db:"end_time"`
+	isAutopilot bool      `db:"is_autopilot"`
 }
 
 type Collision struct {
-	Distance    string
-	IsCollision bool
-	Timestamp   time.Time
+	ID          int       `db:"id"`
+	Distance    string    `db:"distance"`
+	IsCollision bool      `db:"is_collision"`
+	Timestamp   time.Time `db:"timestamp"`
 }
 
 type Speed struct {
-	Speed     string
-	Timestamp time.Time
+	ID        int       `db:"id"`
+	Speed     string    `db:"speed"`
+	Timestamp time.Time `db:"timestamp"`
 }
 
 type LineTracking struct {
-	LineTrackingValue int
+	ID                int `db:"id"`
+	LineTrackingValue int `db:"line_tracking_value"`
 }
 
 type Video struct {
-	VideoURL string
+	ID       int    `db:"id"`
+	VideoURL string `db:"video_url"`
 }
 
 type DatabaseInterface interface {
 	GetAll() ([]Session, error)
+	StartSession(isAutopilot bool) error
+	StopSession() error
+	IsSessionActive() (bool, error)
 }
