@@ -38,6 +38,8 @@ func (s *SessionService) Stop() error {
 	if err != nil {
 		return err
 	}
+	mqttClient := mqtt.NewMQTTClient(s.db)
+	mqttClient.Disconnect()
 	fmt.Println("Session stopped")
 	return nil
 }

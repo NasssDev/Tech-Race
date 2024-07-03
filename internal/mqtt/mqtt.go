@@ -44,7 +44,12 @@ func (m *MQTTClient) messageHandler(client MQTT.Client, msg MQTT.Message) {
 			fmt.Println(err)
 			return
 		}
-		data := models.LineTracking{LineTrackingValue: value}
+		sessionID, err := m.db.GetCurrentSessionID()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		data := models.LineTracking{LineTrackingValue: value, IDSession: sessionID}
 		err = m.db.InsertTrackData(data)
 		if err != nil {
 			fmt.Println(err)
@@ -61,10 +66,18 @@ func (m *MQTTClient) messageHandler(client MQTT.Client, msg MQTT.Message) {
 			isCollision = true
 		}
 		timestamp := time.Now()
-		data := models.Collision{Distance: distance, IsCollision: isCollision, Timestamp: timestamp}
+		sessionID, err := m.db.GetCurrentSessionID()
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		data := models.Collision{Distance: distance, IsCollision: isCollision, Timestamp: timestamp, IDSession: sessionID}
 		err = m.db.InsertSonarData(data)
 		if err != nil {
 			fmt.Println(err)
 		}
 	}
+}
+func (m *MQTTClient) Disconnect() {
+	m.client.Disconnect(250)
 }

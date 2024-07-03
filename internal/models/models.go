@@ -14,26 +14,26 @@ type Collision struct {
 	Distance    float64   `db:"distance"`
 	IsCollision bool      `db:"is_collision"`
 	Timestamp   time.Time `db:"timestamp"`
-	idSession   int       `db:"id_session"`
+	IDSession   int       `db:"id_session"`
 }
 
 type Speed struct {
 	ID        int       `db:"id"`
 	Speed     string    `db:"speed"`
 	Timestamp time.Time `db:"timestamp"`
-	idSession int       `db:"id_session"`
+	IDSession int       `db:"id_session"`
 }
 
 type LineTracking struct {
 	ID                int `db:"id"`
 	LineTrackingValue int `db:"line_tracking_value"`
-	idSession         int `db:"id_session"`
+	IDSession         int `db:"id_session"`
 }
 
 type Video struct {
 	ID        int    `db:"id"`
 	VideoURL  string `db:"video_url"`
-	idSession int    `db:"id_session"`
+	IDSession int    `db:"id_session"`
 }
 
 type DatabaseInterface interface {
@@ -43,4 +43,5 @@ type DatabaseInterface interface {
 	IsSessionActive() (bool, error)
 	InsertTrackData(data LineTracking) error
 	InsertSonarData(data Collision) error
+	GetCurrentSessionID() (int, error)
 }

@@ -47,8 +47,8 @@ func (d *Database) InsertTrackData(data models.LineTracking) error {
 }
 
 func (d *Database) InsertSonarData(data models.Collision) error {
-	query := `INSERT INTO Collision (distance, is_collision, timestamp) VALUES ($1, $2, $3)`
-	_, err := d.db.Exec(query, data.Distance, data.IsCollision, data.Timestamp)
+	query := `INSERT INTO Collision (distance, is_collision, timestamp, id_session) VALUES ($1, $2, $3, $4)`
+	_, err := d.db.Exec(query, data.Distance, data.IsCollision, data.Timestamp, data.IDSession)
 	if err != nil {
 		return err
 	}
