@@ -37,3 +37,29 @@ func (d *Database) IsSessionActive() (bool, error) {
 	}
 	return count > 0, nil
 }
+func (d *Database) InsertTrackData(data models.LineTracking) error {
+	query := `INSERT INTO LineTracking (line_tracking_value) VALUES ($1)`
+	_, err := d.db.Exec(query, data.LineTrackingValue)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+func (d *Database) InsertSonarData(data models.Collision) error {
+	query := `INSERT INTO Collision (distance, is_collision, timestamp) VALUES ($1, $2, $3)`
+	_, err := d.db.Exec(query, data.Distance, data.IsCollision, data.Timestamp)
+	if err != nil {
+		return err
+	}
+	return nil
+}
+func (d *Database) GetCurrentSessionID() (int, error) {
+	var id int
+	query := `SELECT id FROM Session WHERE end_time IS NULL`
+	err := d.db.Get(&id, query)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}

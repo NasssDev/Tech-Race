@@ -3,6 +3,7 @@ package services
 import (
 	"fmt"
 	"hetic/tech-race/internal/models"
+	"hetic/tech-race/internal/mqtt"
 )
 
 type SessionService struct {
@@ -26,6 +27,8 @@ func (s *SessionService) Start(isAutopilot bool) error {
 	if err != nil {
 		return err
 	}
+	mqttClient := mqtt.NewMQTTClient(s.db)
+	mqttClient.ConnectAndSubscribe()
 	fmt.Println("Session started")
 	return nil
 }
