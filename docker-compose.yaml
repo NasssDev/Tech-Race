@@ -17,6 +17,9 @@ services:
         POSTGRES_USER: root
         POSTGRES_PASSWORD: password
         POSTGRES_DB: tech_race
+    volumes:
+        - db-data:/var/lib/postgresql/data
+        - ./dump:/docker-entrypoint-initdb.d
     command: ["postgres", "-c", "listen_addresses=*"]
 
   adminer:
@@ -27,6 +30,17 @@ services:
       - "8089:8080"
     depends_on:
       - db
-
+  pgadmin:
+    container_name: tech_race_pgadmin
+    image: dpage/pgadmin4
+    restart: always
+    ports:
+      - "8888:80"
+    environment:
+        PGADMIN_DEFAULT_EMAIL: tech@race.com
+        PGADMIN_DEFAULT_PASSWORD: password
+    volumes:
+      - pgadmin-data:/var/lib/pgadmin
 volumes:
   db-data:
+  pgadmin-data:
