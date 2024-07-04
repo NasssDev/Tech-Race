@@ -21,3 +21,6 @@ cloudinary/.idea
 
 # Go workspace file
 go.work
+
+
+tmp
