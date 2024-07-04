@@ -30,17 +30,17 @@ func (m *MQTTClient) ConnectAndSubscribe() error {
 		return token.Error()
 	}
 
-	if token := m.client.Subscribe("esp32/track", 0, m.messageHandler); token.Wait() && token.Error() != nil {
+	if token := m.client.Subscribe("esp32/track", 0, m.MessageHandler); token.Wait() && token.Error() != nil {
 		return token.Error()
 	}
 
-	if token := m.client.Subscribe("esp32/sonar", 0, m.messageHandler); token.Wait() && token.Error() != nil {
+	if token := m.client.Subscribe("esp32/sonar", 0, m.MessageHandler); token.Wait() && token.Error() != nil {
 		return token.Error()
 	}
 
 	return nil
 }
-func (m *MQTTClient) messageHandler(client MQTT.Client, msg MQTT.Message) {
+func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 	topic := msg.Topic()
 	sessionID, err := m.db.GetCurrentSessionID()
 	if err != nil {
@@ -54,10 +54,12 @@ func (m *MQTTClient) messageHandler(client MQTT.Client, msg MQTT.Message) {
 			fmt.Println(err)
 			return
 		}
-		data := models.LineTracking{LineTrackingValue: value, IDSession: sessionID}
-		err = m.db.InsertTrackData(data)
-		if err != nil {
-			fmt.Println(err)
+		if value < 7 {
+			data := models.LineTracking{LineTrackingValue: value, IDSession: sessionID}
+			err = m.db.InsertTrackData(data)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
 	case "esp32/sonar":
 		distanceStr := strings.TrimSpace(string(msg.Payload()))
@@ -67,15 +69,18 @@ func (m *MQTTClient) messageHandler(client MQTT.Client, msg MQTT.Message) {
 			return
 		}
 		isCollision := false
-		if distance < 5 {
+		if distance < 10 {
 			isCollision = true
 		}
-		timestamp := time.Now()
-		data := models.Collision{Distance: distance, IsCollision: isCollision, Timestamp: timestamp, IDSession: sessionID}
-		err = m.db.InsertSonarData(data)
-		if err != nil {
-			fmt.Println(err)
+		if isCollision == true {
+			timestamp := time.Now()
+			data := models.Collision{Distance: distance, IsCollision: isCollision, Timestamp: timestamp, IDSession: sessionID}
+			err = m.db.InsertSonarData(data)
+			if err != nil {
+				fmt.Println(err)
+			}
 		}
+
 	}
 }
 func (m *MQTTClient) Disconnect() {
