@@ -11,7 +11,7 @@ import (
 )
 
 const (
-	serverIP = "192.168.1.10"
+	serverIP = "192.168.52.10"
 	port     = 7000
 	boundary = "--123456789000000000000987654321"
 )
@@ -24,7 +24,8 @@ func main() {
 	}
 	defer conn.Close()
 
-	cmd := exec.Command("./ffmpeg", "-f", "mjpeg", "-i", "-", "output.mp4")
+	//cmd := exec.Command("./ffmpeg-debian", "-f", "mjpeg", "-i", "-", "output.mp4")
+	cmd := exec.Command("./ffmpeg-mac", "-f", "mjpeg", "-i", "-", "output.mp4")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		fmt.Println("Error creating stdin pipe:", err)
@@ -38,7 +39,7 @@ func main() {
 	}
 
 	if err := cmd.Start(); err != nil {
-		fmt.Println("Error starting ffmpeg:", err)
+		fmt.Println("Error starting ffmpeg-debian:", err)
 		return
 	}
 
@@ -82,7 +83,7 @@ func main() {
 			frameData := frame[headerEnd+4:]
 			if len(frameData) > 0 {
 				if _, err := stdin.Write(frameData); err != nil {
-					fmt.Println("Error writing to ffmpeg:", err)
+					fmt.Println("Error writing to ffmpeg-debian:", err)
 					return
 				}
 			}
@@ -96,6 +97,6 @@ func main() {
 
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
-		fmt.Println("Error waiting for ffmpeg to finish:", err)
+		fmt.Println("Error waiting for ffmpeg-debian to finish:", err)
 	}
 }
