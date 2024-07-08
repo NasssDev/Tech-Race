@@ -50,6 +50,7 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 	switch topic {
 	case "esp32/track":
 		value, err := strconv.Atoi(string(msg.Payload()))
+		println("the current value ", value)
 		if err != nil {
 			fmt.Println(err)
 			return

@@ -2,12 +2,15 @@ package services
 
 import (
 	"fmt"
+	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"hetic/tech-race/internal/models"
 	"hetic/tech-race/internal/mqtt"
 	"time"
+	"strconv"
 )
 
 type SessionService struct {
+	client MQTT.Client
 	db   models.DatabaseInterface
 	info models.SessionInfo
 }
@@ -49,6 +52,19 @@ func (s *SessionService) Stop() error {
 }
 func (s *SessionService) IsSessionActive() (bool, error) {
 	return s.db.IsSessionActive()
+}
+
+func (s *SessionService) runAutoPilot(msg MQTT.Message) {
+	topic := msg.Topic()
+
+	if topic == "esp32/track" {
+		value, err := strconv.Atoi(string(msg.Payload()))
+		println("the current value ", value)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+	}
 }
 
 func (s *SessionService) GetAllSessionInfo() ([]models.SessionInfo, error) {
