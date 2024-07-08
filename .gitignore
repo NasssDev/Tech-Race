@@ -25,5 +25,3 @@ go.work
 
 tmp
 *.mp4
-
-!bin/ffmpeg/ffmpeg.exe
