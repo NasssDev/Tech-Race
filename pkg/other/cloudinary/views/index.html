@@ -42,7 +42,7 @@
             </div>
             <h1 class="title-color title-font title-size title-margin">Etape 1 - s'inscrire</h1>
             <p class="para-color para-font para-size para-margin">Avec Cloudinarace, stocke les vidéos prisent par ta voiture sur Cloudinary !
-                Pour cela tu dois avoir un compte cloudinary.</p>
+                Pour cela tu dois avoir un compte cloudinary. Configure la cloudinary_url et id dans le <code class="code">.env</code> de <a class="link" href="https://github.com/NasssDev/Tech-Race/tree/main/pkg/other/cloudinary">ce package</a> dans <i>Tech Race</i>.</p>
             <a type="button" href="https://cloudinary.com/users/register_free" class="btn-text-color-3 btn-size btn-font btn-form">Créer mon compte</a>
         </article>
 
@@ -52,8 +52,7 @@
                     <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
             </div>
             <h1 class="title-color title-font title-size title-margin">Etape 2 - Stocker</h1>
-            <p class="para-color para-font para-size para-margin">En appelant <code class="code">/upload-videos</code>
-                tu peux déclencher l'export sur Cloudinary des vidéos prises par ton freenov Car.</p>
+            <p class="para-color para-font para-size para-margin">En appelant <code class="code">/upload-videos?url=your-video-url.mp4</code> depuis Tech Race, tu peux déclencher l'export sur Cloudinary des vidéos prises par ton freenov Car.</p>
 
         </article>
     </div>

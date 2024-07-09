@@ -75,6 +75,15 @@
     .footer {
         height: 5vh;
     }
+
+    .link {
+        text-decoration: none;
+        color: darkblue;
+    }
+
+    .link:hover, link:active {
+        text-decoration: underline;
+    }
 }
 
 /* Big screen */

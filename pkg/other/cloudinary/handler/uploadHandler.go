@@ -6,15 +6,24 @@ import (
 	"github.com/cloudinary/cloudinary-go/v2/api"
 	"github.com/cloudinary/cloudinary-go/v2/api/uploader"
 	"net/http"
+	"strings"
 )
 
 func UploadImageHandler(entity *entity.ContextEntity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+
+		imageURL := r.URL.Query().Get("url")
+		imagePublicID := r.URL.Query().Get("id")
+		if imageURL == "" {
+			http.Error(w, "URL parameter is required", http.StatusBadRequest)
+			return
+		}
+
 		uploadResult, err := entity.Cld.Upload.Upload(
 			entity.Ctx,
-			"https://cloudinary-devs.github.io/cld-docs-assets/assets/images/butterfly.jpeg",
+			imageURL,
 			uploader.UploadParams{
-				PublicID:       "quickstart_butterfly",
+				PublicID:       imagePublicID,
 				UniqueFilename: api.Bool(false),
 				Overwrite:      api.Bool(true)})
 		if err != nil {
@@ -27,11 +36,24 @@ func UploadImageHandler(entity *entity.ContextEntity) http.HandlerFunc {
 
 func UploadVideoHandler(entity *entity.ContextEntity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
-		uploadResult, err := entity.UploadVideo("https://res.cloudinary.com/demo/video/upload/wave.mp4", "quickstart_wave")
-		if err != nil {
-			http.Error(w, "Failed to upload video", http.StatusInternalServerError)
+		// Extract the URL parameter from the request
+		videoURL := r.URL.Query().Get("url")
+		videoPublicID := r.URL.Query().Get("id")
+		if videoURL == "" {
+			http.Error(w, "Il manque des query string ?id= et ?url=", http.StatusBadRequest)
 			return
 		}
-		fmt.Fprintf(w, "Video uploaded successfully! Delivery URL: %s\n", uploadResult.SecureURL)
+
+		if !strings.HasSuffix(videoURL, ".mp4") {
+			http.Error(w, "Format obligatoire en .mp4", http.StatusBadRequest)
+			return
+		}
+
+		uploadResult, err := entity.UploadVideo(videoURL, videoPublicID)
+		if err != nil {
+			http.Error(w, "Echec dans l' export des vidéos", http.StatusInternalServerError)
+			return
+		}
+		fmt.Fprintf(w, "Vos vidéos sont sur Cloudinary, bravo! URL: %s\n", uploadResult.SecureURL)
 	}
 }
