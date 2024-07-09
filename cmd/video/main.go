@@ -12,7 +12,7 @@ import (
 )
 
 const (
-	serverIP = "192.168.52.10"
+	serverIP = "192.168.1.10"
 	port     = 7000
 	boundary = "--123456789000000000000987654321"
 )
@@ -30,7 +30,7 @@ func main() {
 	var ffmpegPath string
 	if os == "windows" {
 		fmt.Println("Windows OS")
-		ffmpegPath = "bin/ffmpeg/ffmpeg-windows.exe"
+		ffmpegPath = "bin/ffmpeg/ffmpeg.exe"
 	}
 	if os == "linux" {
 		fmt.Println("Linux OS")
