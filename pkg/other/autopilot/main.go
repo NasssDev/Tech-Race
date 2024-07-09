@@ -155,15 +155,16 @@ func runAutopilot(w http.ResponseWriter, r *http.Request) {
 		for {
 			select {
 			case <-autopilotStop:
+				stop()
 				return
 			case <-ticker.C:
 				// Simulate autopilot behavior
 				front()
-				time.Sleep(2 * time.Second)
+				time.Sleep(1 * time.Second)
 				left()
-				time.Sleep(2 * time.Second)
+				time.Sleep(1 * time.Second)
 				front()
-				time.Sleep(2 * time.Second)
+				time.Sleep(1 * time.Second)
 				right()
 			}
 		}
