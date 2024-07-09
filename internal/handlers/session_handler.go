@@ -70,3 +70,14 @@ func (h *SessionHandler) Stop() http.HandlerFunc {
 		w.Write([]byte("Session stopped\n"))
 	}
 }
+func (h *SessionHandler) GetAllSessionInfo() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		sessionInfos, err := h.sessionService.GetAllSessionInfo()
+		if err != nil {
+			http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		util.RenderJson(w, http.StatusOK, sessionInfos)
+	}
+}
