@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"net"
+	"net/http"
 	"os/exec"
 	"runtime"
 	"time"
@@ -15,6 +16,8 @@ const (
 	serverIP = "192.168.1.10"
 	port     = 7000
 	boundary = "--123456789000000000000987654321"
+	// Appel de l'api cloudinary: base url
+	cloudinaryPackageUrl = "http://localhost:8090/upload-video"
 )
 
 func main() {
@@ -114,4 +117,28 @@ func main() {
 	if err := cmd.Wait(); err != nil {
 		fmt.Println("Error waiting for ffmpeg-linux to finish:", err)
 	}
+
+	// Upload the video file to the existing UploadVideoHandler API
+	err = uploadVideoToCloudinary(cloudinaryPackageUrl, "output.mp4", "quickstart_wave")
+	if err != nil {
+		fmt.Println("Error uploading video:", err)
+	}
+}
+
+func uploadVideoToCloudinary(uploadURL, videoURL, videoID string) error {
+	reqURL := fmt.Sprintf("%s?url=%s&id=%s", uploadURL, videoURL, videoID)
+	resp, err := http.Get(reqURL)
+	if err != nil {
+		return fmt.Errorf("Il y a une erreur dans la requête http: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("Il y a une erreur dans l'upload de la vidéo %s, body: %s", resp.Status, string(body))
+	}
+
+	fmt.Println("Les vidéos sont sur Cloudinary")
+	return nil
+
 }
