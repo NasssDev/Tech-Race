@@ -29,12 +29,15 @@ func main() {
 	os := runtime.GOOS
 	var ffmpegPath string
 	if os == "windows" {
+		fmt.Println("Windows OS")
 		ffmpegPath = "bin/ffmpeg/ffmpeg-windows.exe"
 	}
 	if os == "linux" {
+		fmt.Println("Linux OS")
 		ffmpegPath = "bin/ffmpeg/ffmpeg-linux"
 	}
 	if os == "darwin" {
+		fmt.Println("Mac OS")
 		ffmpegPath = "bin/ffmpeg/ffmpeg-mac"
 	}
 	cmd := exec.Command(ffmpegPath, "-f", "mjpeg", "-i", "-", "output.mp4")
