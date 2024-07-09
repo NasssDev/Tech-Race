@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"net/http"
 	"sync"
+	"time"
 
 	"github.com/gorilla/mux"
 	"github.com/gorilla/websocket"
@@ -12,6 +13,8 @@ import (
 
 var esp32Conn *websocket.Conn
 var esp32Connected = false
+var autopilotRunning = false
+var autopilotStop chan struct{}
 var mutex = &sync.Mutex{}
 
 type Message struct {
@@ -27,9 +30,10 @@ var upgrader = websocket.Upgrader{
 
 func connectToESP32() {
 	var err error
-	esp32Conn, _, err = websocket.DefaultDialer.Dial("ws://192.168.18.50/ws", nil) // Replace with your ESP32 IP
+	esp32Conn, _, err = websocket.DefaultDialer.Dial("ws://192.168.155.10/ws", nil) // Replace with your ESP32 IP
 	if err != nil {
 		fmt.Println("Erreur lors de la connexion à l'ESP32:", err)
+		esp32Connected = false
 		return
 	}
 	esp32Connected = true
@@ -40,10 +44,14 @@ func sendMessageToESP32(message Message) {
 	if esp32Connected {
 		mutex.Lock()
 		defer mutex.Unlock()
-		err := esp32Conn.WriteJSON(message)
-		if err != nil {
-			fmt.Println("Erreur lors de l'envoi du message à l'ESP32:", err)
-			esp32Connected = false
+		if esp32Conn != nil {
+			err := esp32Conn.WriteJSON(message)
+			if err != nil {
+				fmt.Println("Erreur lors de l'envoi du message à l'ESP32:", err)
+				esp32Connected = false
+			}
+		} else {
+			fmt.Println("Connexion ESP32 est nil")
 		}
 	} else {
 		fmt.Println("ESP32 non connecté")
@@ -75,6 +83,12 @@ func handleFront(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(msg)
 }
 
+func stopCar(w http.ResponseWriter, r *http.Request) {
+	msg := Message{Cmd: 1, Data: []int{0, 0, 0, 0}}
+	sendMessageToESP32(msg)
+	json.NewEncoder(w).Encode(msg)
+}
+
 func handleBack(w http.ResponseWriter, r *http.Request) {
 	msg := Message{Cmd: 1, Data: []int{-500, -500, -500, -500}}
 	sendMessageToESP32(msg)
@@ -82,48 +96,90 @@ func handleBack(w http.ResponseWriter, r *http.Request) {
 }
 
 func handleLeft(w http.ResponseWriter, r *http.Request) {
-	msg := Message{Cmd: 1, Data: []int{-500, 500, -500, 500}}
+	msg := Message{Cmd: 1, Data: []int{0, 0, 2000, 2000}}
 	sendMessageToESP32(msg)
 	json.NewEncoder(w).Encode(msg)
 }
 
 func handleRight(w http.ResponseWriter, r *http.Request) {
-	msg := Message{Cmd: 1, Data: []int{500, -500, 500, -500}}
+	// FL BL FR BR
+	msg := Message{Cmd: 1, Data: []int{2000, 2000, 0, 0}}
 	sendMessageToESP32(msg)
 	json.NewEncoder(w).Encode(msg)
 }
 
-func handleCamOn(w http.ResponseWriter, r *http.Request) {
-	msg := Message{Cmd: 9, Data: 1}
+func front() {
+	msg := Message{Cmd: 1, Data: []int{500, 500, 500, 500}}
 	sendMessageToESP32(msg)
-	json.NewEncoder(w).Encode(msg)
 }
 
-func handleCamOff(w http.ResponseWriter, r *http.Request) {
-	msg := Message{Cmd: 9, Data: 0}
+func stop() {
+	msg := Message{Cmd: 1, Data: []int{0, 0, 0, 0}}
 	sendMessageToESP32(msg)
-	json.NewEncoder(w).Encode(msg)
 }
 
-func handleHead(w http.ResponseWriter, r *http.Request) {
-	var data struct {
-		X int `json:"x"`
-		Y int `json:"y"`
+func back() {
+	msg := Message{Cmd: 1, Data: []int{-500, -500, -500, -500}}
+	sendMessageToESP32(msg)
+}
+
+func left() {
+	msg := Message{Cmd: 1, Data: []int{0, 0, 2000, 2000}}
+	sendMessageToESP32(msg)
+}
+
+func right() {
+	msg := Message{Cmd: 1, Data: []int{2000, 2000, 0, 0}}
+	sendMessageToESP32(msg)
+}
+
+func runAutopilot(w http.ResponseWriter, r *http.Request) {
+	if autopilotRunning {
+		w.WriteHeader(http.StatusBadRequest)
+		w.Write([]byte("Autopilot already running"))
+		return
 	}
-	json.NewDecoder(r.Body).Decode(&data)
-	msg := Message{Cmd: 3, Data: []int{data.X, data.Y}}
-	sendMessageToESP32(msg)
-	json.NewEncoder(w).Encode(msg)
+
+	autopilotStop = make(chan struct{})
+	autopilotRunning = true
+	go func() {
+		// Arrêter la voiture en cas d'arrêt d'autopilot
+		defer func() {
+			stop()
+			autopilotRunning = false
+		}()
+
+		ticker := time.NewTicker(2 * time.Second)
+		defer ticker.Stop()
+
+		for {
+			select {
+			case <-autopilotStop:
+				return
+			case <-ticker.C:
+				// Simulate autopilot behavior
+				front()
+				time.Sleep(2 * time.Second)
+				left()
+				time.Sleep(2 * time.Second)
+				front()
+				time.Sleep(2 * time.Second)
+				right()
+			}
+		}
+	}()
+	w.Write([]byte("Autopilot started"))
 }
 
-func handleHeadFace(w http.ResponseWriter, r *http.Request) {
-	var data struct {
-		X int `json:"x"`
+func stopAutopilot(w http.ResponseWriter, r *http.Request) {
+	if autopilotRunning {
+		stop()
+		close(autopilotStop)
+		autopilotRunning = false
+		w.Write([]byte("Autopilot stopped"))
+	} else {
+		w.Write([]byte("Autopilot not running"))
 	}
-	json.NewDecoder(r.Body).Decode(&data)
-	msg := Message{Cmd: 2, Data: data.X}
-	sendMessageToESP32(msg)
-	json.NewEncoder(w).Encode(msg)
 }
 
 func main() {
@@ -132,17 +188,16 @@ func main() {
 	router := mux.NewRouter()
 
 	router.HandleFunc("/ws", handleConnections)
-	router.HandleFunc("/front", handleFront).Methods("POST")
-	router.HandleFunc("/back", handleBack).Methods("POST")
-	router.HandleFunc("/left", handleLeft).Methods("POST")
-	router.HandleFunc("/right", handleRight).Methods("POST")
-	router.HandleFunc("/camon", handleCamOn).Methods("POST")
-	router.HandleFunc("/camoff", handleCamOff).Methods("POST")
-	router.HandleFunc("/head", handleHead).Methods("POST")
-	router.HandleFunc("/headface", handleHeadFace).Methods("POST")
+	router.HandleFunc("/front", handleFront).Methods("GET")
+	router.HandleFunc("/stop", stopCar).Methods("GET")
+	router.HandleFunc("/back", handleBack).Methods("GET")
+	router.HandleFunc("/left", handleLeft).Methods("GET")
+	router.HandleFunc("/right", handleRight).Methods("GET")
+	router.HandleFunc("/autopilot/start", runAutopilot).Methods("GET")
+	router.HandleFunc("/autopilot/stop", stopAutopilot).Methods("GET")
 
-	fmt.Println("Serveur démarré sur le port 8080")
-	err := http.ListenAndServe(":8080", router)
+	fmt.Println("Serveur démarré sur le port 8084")
+	err := http.ListenAndServe(":8084", router)
 	if err != nil {
 		fmt.Println("Erreur lors du démarrage du serveur:", err)
 	}
