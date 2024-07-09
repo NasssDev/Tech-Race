@@ -15,7 +15,7 @@ type MQTTClient struct {
 }
 
 func NewMQTTClient(db models.DatabaseInterface) *MQTTClient {
-	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.52.82:1883")
+	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.155.82:1883")
 	client := MQTT.NewClient(opts)
 	return &MQTTClient{client: client, db: db}
 }
@@ -55,7 +55,8 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 			return
 		}
 		if value < 7 {
-			data := models.LineTracking{LineTrackingValue: value, IDSession: sessionID}
+			timestamp := time.Now()
+			data := models.LineTracking{LineTrackingValue: value, IDSession: sessionID, Timestamp: timestamp}
 			err = m.db.InsertTrackData(data)
 			if err != nil {
 				fmt.Println(err)

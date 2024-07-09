@@ -26,9 +26,10 @@ type Speed struct {
 }
 
 type LineTracking struct {
-	ID                int `db:"id"`
-	LineTrackingValue int `db:"line_tracking_value"`
-	IDSession         int `db:"id_session"`
+	ID                int       `db:"id"`
+	LineTrackingValue int       `db:"line_tracking_value"`
+	IDSession         int       `db:"id_session"`
+	Timestamp         time.Time `db:"timestamp"`
 }
 
 type Video struct {
@@ -49,19 +50,19 @@ type SessionInfo struct {
 }
 
 type CollisionInfo struct {
-	Count      int         `json:"count"`
-	Timestamps []time.Time `json:"timestamps"`
+	Count      int      `json:"count"`
+	Timestamps []string `json:"timestamps"`
 }
 
 type TrackInfo struct {
-	Count      int         `json:"count"`
-	Timestamps []time.Time `json:"timestamps"`
+	Count      int      `json:"count"`
+	Timestamps []string `json:"timestamps"`
 }
 
 type DatabaseInterface interface {
 	GetAll() ([]Session, error)
-	StartSession(isAutopilot bool) error
-	StopSession() error
+	StartSession(timeStamp time.Time, isAutopilot bool) error
+	StopSession(timeStamp time.Time) error
 	IsSessionActive() (bool, error)
 	InsertTrackData(data LineTracking) error
 	InsertSonarData(data Collision) error

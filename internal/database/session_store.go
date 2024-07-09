@@ -1,6 +1,9 @@
 package database
 
-import "hetic/tech-race/internal/models"
+import (
+	"hetic/tech-race/internal/models"
+	"time"
+)
 
 func (d *Database) GetAll() ([]models.Session, error) {
 	sessions := []models.Session{}
@@ -11,18 +14,18 @@ func (d *Database) GetAll() ([]models.Session, error) {
 	}
 	return sessions, nil
 }
-func (d *Database) StartSession(isAutopilot bool) error {
-	query := `INSERT INTO Session (start_time, end_time, is_autopilot) VALUES (NOW(), NULL, $1)`
-	_, err := d.db.Exec(query, isAutopilot)
+func (d *Database) StartSession(timeStamp time.Time, isAutopilot bool) error {
+	query := `INSERT INTO Session (start_time, end_time, is_autopilot) VALUES ($1, NULL, $2)`
+	_, err := d.db.Exec(query, timeStamp, isAutopilot)
 	if err != nil {
 		return err
 	}
 	return nil
 }
 
-func (d *Database) StopSession() error {
-	query := `UPDATE Session SET end_time = NOW() WHERE end_time IS NULL`
-	_, err := d.db.Exec(query)
+func (d *Database) StopSession(timeStamp time.Time) error {
+	query := `UPDATE Session SET end_time = $1 WHERE end_time IS NULL`
+	_, err := d.db.Exec(query, timeStamp)
 	if err != nil {
 		return err
 	}
@@ -38,8 +41,8 @@ func (d *Database) IsSessionActive() (bool, error) {
 	return count > 0, nil
 }
 func (d *Database) InsertTrackData(data models.LineTracking) error {
-	query := `INSERT INTO LineTracking (line_tracking_value , id_session) VALUES ($1, $2)`
-	_, err := d.db.Exec(query, data.LineTrackingValue, data.IDSession)
+	query := `INSERT INTO LineTracking (line_tracking_value , id_session,timestamp) VALUES ($1, $2, $3)`
+	_, err := d.db.Exec(query, data.LineTrackingValue, data.IDSession, data.Timestamp)
 	if err != nil {
 		return err
 	}

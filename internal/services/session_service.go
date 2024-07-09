@@ -25,7 +25,8 @@ func (s *SessionService) GetAll() ([]models.Session, error) {
 	return sessions, nil
 }
 func (s *SessionService) Start(isAutopilot bool) error {
-	err := s.db.StartSession(isAutopilot)
+	timeStamp := time.Now()
+	err := s.db.StartSession(timeStamp, isAutopilot)
 	if err != nil {
 		return err
 	}
@@ -36,7 +37,8 @@ func (s *SessionService) Start(isAutopilot bool) error {
 }
 
 func (s *SessionService) Stop() error {
-	err := s.db.StopSession()
+	timeStamp := time.Now()
+	err := s.db.StopSession(timeStamp)
 	if err != nil {
 		return err
 	}
@@ -57,6 +59,14 @@ func (s *SessionService) GetAllSessionInfo() ([]models.SessionInfo, error) {
 
 	var sessionInfos []models.SessionInfo
 	for _, session := range sessions {
+		startDate := session.StartDate.Format("02/01/2006 - 15:04:05")
+		endDate := session.EndDate.Format("02/01/2006 - 15:04:05")
+		// Calculate the duration of the race
+		duration := session.EndDate.Sub(session.StartDate)
+		hours := int(duration.Hours())
+		minutes := int(duration.Minutes()) % 60
+		seconds := int(duration.Seconds()) % 60
+		durationStr := fmt.Sprintf("%d:%d:%d", hours, minutes, seconds)
 		collisions, err := s.db.GetCollisionsBySessionID(session.ID)
 		if err != nil {
 			return nil, err
@@ -69,30 +79,28 @@ func (s *SessionService) GetAllSessionInfo() ([]models.SessionInfo, error) {
 
 		collisionInfo := models.CollisionInfo{
 			Count:      len(collisions),
-			Timestamps: make([]time.Time, len(collisions)),
+			Timestamps: make([]string, len(collisions)),
 		}
 		for i, collision := range collisions {
-			collisionInfo.Timestamps[i] = collision.Timestamp
+			timingCollision := collision.Timestamp.Sub(session.StartDate)
+			hours := int(timingCollision.Hours())
+			minutes := int(timingCollision.Minutes()) % 60
+			seconds := int(timingCollision.Seconds()) % 60
+			collisionInfo.Timestamps[i] = fmt.Sprintf("%d:%d:%d", hours, minutes, seconds)
+
 		}
 
 		trackInfo := models.TrackInfo{
 			Count:      len(tracks),
-			Timestamps: make([]time.Time, len(tracks)),
+			Timestamps: make([]string, len(tracks)),
 		}
-		for i, collision := range collisions {
-			collisionInfo.Timestamps[i] = collision.Timestamp // Make sure collision is of type Collision
+		for i, track := range tracks {
+			timingTrack := track.Timestamp.Sub(session.StartDate)
+			hours := int(timingTrack.Hours())
+			minutes := int(timingTrack.Minutes()) % 60
+			seconds := int(timingTrack.Seconds()) % 60
+			trackInfo.Timestamps[i] = fmt.Sprintf("%d:%d:%d", hours, minutes, seconds)
 		}
-
-		// Format the start and end dates
-		startDate := session.StartDate.Format("02_01_2006")
-		endDate := session.EndDate.Format("02_01_2006")
-
-		// Calculate the duration of the race
-		duration := session.EndDate.Sub(session.StartDate)
-		hours := int(duration.Hours())
-		minutes := int(duration.Minutes()) % 60
-		seconds := int(duration.Seconds()) % 60
-		durationStr := fmt.Sprintf("%d_%d_%d", hours, minutes, seconds)
 
 		sessionInfo := models.SessionInfo{
 			ID:          session.ID,
