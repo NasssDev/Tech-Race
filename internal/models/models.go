@@ -2,11 +2,12 @@ package models
 
 import "time"
 
+// Session struct for database
 type Session struct {
 	ID          int       `db:"id"`
 	StartDate   time.Time `db:"start_time"`
 	EndDate     time.Time `db:"end_time"`
-	isAutopilot bool      `db:"is_autopilot"`
+	IsAutopilot bool      `db:"is_autopilot"`
 }
 
 type Collision struct {
@@ -36,6 +37,27 @@ type Video struct {
 	IDSession int    `db:"id_session"`
 }
 
+// SessionInfo struct for json api
+type SessionInfo struct {
+	ID          int             `json:"id"`
+	StartDate   string          `json:"start_time"`
+	EndDate     string          `json:"end_time"`
+	Duration    string          `json:"duration"`
+	IsAutopilot bool            `json:"is_autopilot"`
+	Collisions  []CollisionInfo `json:"collisions"`
+	Tracks      []TrackInfo     `json:"tracks"`
+}
+
+type CollisionInfo struct {
+	Count      int         `json:"count"`
+	Timestamps []time.Time `json:"timestamps"`
+}
+
+type TrackInfo struct {
+	Count      int         `json:"count"`
+	Timestamps []time.Time `json:"timestamps"`
+}
+
 type DatabaseInterface interface {
 	GetAll() ([]Session, error)
 	StartSession(isAutopilot bool) error
@@ -44,4 +66,6 @@ type DatabaseInterface interface {
 	InsertTrackData(data LineTracking) error
 	InsertSonarData(data Collision) error
 	GetCurrentSessionID() (int, error)
+	GetCollisionsBySessionID(sessionID int) ([]Collision, error)
+	GetTracksBySessionID(sessionID int) ([]LineTracking, error)
 }

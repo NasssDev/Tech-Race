@@ -15,7 +15,7 @@ type MQTTClient struct {
 }
 
 func NewMQTTClient(db models.DatabaseInterface) *MQTTClient {
-	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.39.82:1883")
+	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.52.82:1883")
 	client := MQTT.NewClient(opts)
 	return &MQTTClient{client: client, db: db}
 }

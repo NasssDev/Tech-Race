@@ -63,3 +63,22 @@ func (d *Database) GetCurrentSessionID() (int, error) {
 	}
 	return id, nil
 }
+func (d *Database) GetCollisionsBySessionID(sessionID int) ([]models.Collision, error) {
+	collisions := []models.Collision{}
+	query := "SELECT * FROM Collision WHERE id_session = $1"
+	err := d.db.Select(&collisions, query, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	return collisions, nil
+}
+
+func (d *Database) GetTracksBySessionID(sessionID int) ([]models.LineTracking, error) {
+	tracks := []models.LineTracking{}
+	query := "SELECT * FROM LineTracking WHERE id_session = $1"
+	err := d.db.Select(&tracks, query, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	return tracks, nil
+}
