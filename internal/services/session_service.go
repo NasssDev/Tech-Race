@@ -5,14 +5,14 @@ import (
 	MQTT "github.com/eclipse/paho.mqtt.golang"
 	"hetic/tech-race/internal/models"
 	"hetic/tech-race/internal/mqtt"
-	"time"
 	"strconv"
+	"time"
 )
 
 type SessionService struct {
 	client MQTT.Client
-	db   models.DatabaseInterface
-	info models.SessionInfo
+	db     models.DatabaseInterface
+	info   models.SessionInfo
 }
 
 func NewSessionService(db models.DatabaseInterface) *SessionService {
