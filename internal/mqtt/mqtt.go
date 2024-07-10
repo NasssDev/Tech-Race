@@ -3,7 +3,6 @@ package mqtt
 import (
 	"fmt"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
-	"github.com/gorilla/websocket"
 	"hetic/tech-race/internal/models"
 	"strconv"
 	"strings"
@@ -16,7 +15,7 @@ type MQTTClient struct {
 }
 
 func NewMQTTClient(db models.DatabaseInterface) *MQTTClient {
-	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.155.82:1883")
+	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.31.82:1883")
 	client := MQTT.NewClient(opts)
 	return &MQTTClient{client: client, db: db}
 }
@@ -41,6 +40,7 @@ func (m *MQTTClient) ConnectAndSubscribe() error {
 
 	return nil
 }
+
 func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 	topic := msg.Topic()
 	sessionID, err := m.db.GetCurrentSessionID()
@@ -55,6 +55,7 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 			fmt.Println(err)
 			return
 		}
+
 		if value < 7 {
 			timestamp := time.Now()
 			data := models.LineTracking{LineTrackingValue: value, IDSession: sessionID, Timestamp: timestamp}
@@ -64,35 +65,6 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 			}
 		}
 
-		c, _, err := websocket.DefaultDialer.Dial("ws://192.168.31.10/ws", nil)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		defer c.Close()
-		var payload map[string]interface{}
-		switch value {
-		case 7:
-			payload = map[string]interface{}{
-				"cmd":  1,
-				"data": [4]int{500, 500, 500, 500},
-			}
-		case 6:
-			payload = map[string]interface{}{
-				"cmd":  1,
-				"data": [4]int{0, 0, 500, 500},
-			}
-		case 3:
-			payload = map[string]interface{}{
-				"cmd":  1,
-				"data": [4]int{500, 500, 0, 0},
-			}
-		}
-		err = c.WriteJSON(payload)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
 	case "esp32/sonar":
 		distanceStr := strings.TrimSpace(string(msg.Payload()))
 		distance, err := strconv.ParseFloat(distanceStr, 64)

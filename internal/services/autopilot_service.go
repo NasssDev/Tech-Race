@@ -33,6 +33,7 @@ func connectToESP32() {
 		esp32Connected = false
 		return
 	}
+
 	esp32Connected = true
 	fmt.Println("Connecté à l'ESP32")
 }

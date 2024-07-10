@@ -3,11 +3,9 @@ package services
 import (
 	"fmt"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gorilla/websocket"
 	"hetic/tech-race/internal/models"
 	"hetic/tech-race/internal/mqtt"
-	"strconv"
-	"log"
-	"net/http"
 	"strconv"
 	"time"
 )
@@ -39,6 +37,8 @@ func (s *SessionService) Start(isAutopilot bool) error {
 	mqttClient := mqtt.NewMQTTClient(s.db)
 	_ = mqttClient.ConnectAndSubscribe()
 	fmt.Println("Session started")
+	go connectToESP32()
+	runAutopilot()
 	return nil
 }
 
@@ -58,15 +58,58 @@ func (s *SessionService) IsSessionActive() (bool, error) {
 }
 
 func (s *SessionService) runAutoPilot(msg MQTT.Message) {
-	topic := msg.Topic()
-
-	if topic == "esp32/track" {
-		value, err := strconv.Atoi(string(msg.Payload()))
-		println("the current value ", value)
+	sessionID, err := s.db.GetCurrentSessionID()
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	value, err := strconv.Atoi(string(msg.Payload()))
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	if value < 7 {
+		timestamp := time.Now()
+		data := models.LineTracking{LineTrackingValue: value, IDSession: sessionID, Timestamp: timestamp}
+		err = s.db.InsertTrackData(data)
 		if err != nil {
 			fmt.Println(err)
-			return
 		}
+	}
+
+	c, _, err := websocket.DefaultDialer.Dial("ws://192.168.31.10/ws", nil)
+	if err != nil {
+		fmt.Println(err)
+		return
+	}
+	defer c.Close()
+	var payload map[string]interface{}
+	switch value {
+	case 7:
+		payload = map[string]interface{}{
+			"cmd":  1,
+			"data": [4]int{500, 500, 500, 500},
+		}
+	case 3:
+		payload = map[string]interface{}{
+			"cmd":  1,
+			"data": [4]int{0, 0, 500, 500},
+		}
+	case 6:
+		payload = map[string]interface{}{
+			"cmd":  1,
+			"data": [4]int{500, 500, 0, 0},
+		}
+	case 0:
+		payload = map[string]interface{}{
+			"cmd":  1,
+			"data": [4]int{0, 0, 0, 0},
+		}
+	}
+	err = c.WriteJSON(payload)
+	if err != nil {
+		fmt.Println(err)
+		return
 	}
 }
 
