@@ -1,10 +1,14 @@
 CURRENT_DIR=$(patsubst %/,%,$(dir $(realpath $(firstword $(MAKEFILE_LIST)))))
 ROOT_DIR=$(CURRENT_DIR)
-DOCKER_COMPOSE?=docker-compose
+DOCKER_COMPOSE?=docker compose
+DOCKER_NAME=cloudinarace
+DOCKER_EXEC=$(CURRENT_USER) docker exec -it $(DOCKER_NAME) sh
 PORT?=8083
 RUN_CLOUDINARY=cd pkg/other/cloudinary && go run main/main.go --port=$(PORT)
-GO_RUN=go run .
+GO_RUN="go run main/main.go --port=$(PORT)"
 AIR=cd pkg/other/cloudinary && air
+RUN_DOCKER=cd pkg/other/cloudinary && docker compose up
+
 
 down:
 	cd pkg/other/cloudinary && $(DOCKER_COMPOSE) down
@@ -15,17 +19,18 @@ build:
 up:
 	cd pkg/other/cloudinary && $(DOCKER_COMPOSE) up -d
 
+exec:
+	$(DOCKER_EXEC)  -c $(GO_RUN)
+
 run-cloudinarace:
 	$(RUN_CLOUDINARY)
 
 run-cloudinary-air:
 	$(AIR)
 
+cloud-docker: up exec
 
-
-cloud-docker: up
-
-shut-docker : down
+cloud-down : down
 
 start-cloudinarace: run-cloudinarace
 

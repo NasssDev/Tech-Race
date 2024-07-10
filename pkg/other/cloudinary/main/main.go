@@ -34,7 +34,7 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 
 func main() {
 	// Define and parse the port flag
-	port := flag.String("port", "8084", "Port to run the server on")
+	port := flag.String("port", "8090", "Port to run the server on")
 	flag.Parse()
 
 	// Set the parsed port in the environment variable

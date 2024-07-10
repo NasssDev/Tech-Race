@@ -21,10 +21,14 @@ L'objectif principal est de traiter et gérer l'export de vidéos prise par la c
 ### Instructions d'Installation
 
 1. Clonez le dépôt GitHub vers votre machine locale.
-2. Assurez-vous d'avoir les outils de développement nécessaires installés (Go sur votre machine locale).
-3. Installez des conteneurs docker : `make cloud-docker`.
-4. Démarrez l'application en exécutant : <br>`make start-cloudinarace PORT=votre-port`.
-5. Se rendre sur la page d'accueil pour suivre les explications en vue d'utiliser ce package
+2. Assurez-vous d'avoir les outils de développement nécessaires installés 
+   - <a href="https://go.dev/">Go</a> sur votre machine locale
+   - Makefile : sur windows vous devez installer make via <br> <a href="https://learn.microsoft.com/en-us/windows/wsl/install">WSL</a> <br> ou <a href="https://gnuwin32.sourceforge.net/packages/make.html">GnuWin32</a>
+   - Makefile sur Mac : il est disponible via Xcode <br> (vérifier avec `make --version`)
+3. Choisissez votre mode d'installation:  
+   - Installez un conteneur docker : `make cloud-docker PORT=votre-port`.
+   - Démarrez l'application en exécutant : <br>`make start-cloudinarace PORT=votre-port`.
+5. Se rendre sur la page d'accueil via `http://localhost:votre-port` pour suivre les explications en vue d'utiliser ce package
 
 ### Licence
 
