@@ -51,7 +51,8 @@ func UploadVideoHandler(entity *entity.ContextEntity) http.HandlerFunc {
 
 		uploadResult, err := entity.UploadVideo(videoURL, videoPublicID)
 		if err != nil {
-			http.Error(w, "Echec dans l' export des vidéos", http.StatusInternalServerError)
+			println("Echec export de vidéos - erreur: ", err)
+			http.Error(w, "Echec dans l' export des vidéos, statut: ", http.StatusInternalServerError)
 			return
 		}
 		fmt.Fprintf(w, "Vos vidéos sont sur Cloudinary, bravo! URL: %s\n", uploadResult.SecureURL)

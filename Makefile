@@ -8,7 +8,7 @@ RUN_CLOUDINARY=cd pkg/other/cloudinary && go run main/main.go --port=$(PORT)
 GO_RUN="go run main/main.go --port=$(PORT)"
 AIR=cd pkg/other/cloudinary && air
 RUN_DOCKER=cd pkg/other/cloudinary && docker compose up
-
+RUN_TECHRACEAPI=go run cmd/api/main.go
 
 down:
 	cd pkg/other/cloudinary && $(DOCKER_COMPOSE) down
@@ -28,6 +28,9 @@ run-cloudinarace:
 run-cloudinary-air:
 	$(AIR)
 
+run-tech-race:
+	$(RUN_TECHRACEAPI)
+
 cloud-docker: up exec
 
 cloud-down : down
@@ -35,3 +38,5 @@ cloud-down : down
 start-cloudinarace: run-cloudinarace
 
 cloud-air: run-cloudinary-air
+
+run: run-tech-race

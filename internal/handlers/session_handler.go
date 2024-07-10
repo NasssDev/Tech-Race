@@ -64,6 +64,16 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 	}
 }
 
+func (h *SessionHandler) ExportVideoToCloudinary() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var cloudinaryPackageUrl = "http://localhost:8045/upload-video"
+		err := services.UploadVideoToCloudinary(cloudinaryPackageUrl, "../../../tmp/output.mp4", "freenov")
+		if err != nil {
+			fmt.Println("Error uploading video:", err)
+		}
+	}
+}
+
 func (h *SessionHandler) Stop() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := h.sessionService.Stop()

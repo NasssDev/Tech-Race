@@ -7,6 +7,7 @@ import (
 	"hetic/tech-race/internal/models"
 	"io"
 	"net"
+	"net/http"
 	OS "os"
 	"os/exec"
 	"path/filepath"
@@ -167,4 +168,24 @@ func createVideoDir(dir string) {
 	} else {
 		fmt.Println("The provided directory named", dir, "exists")
 	}
+}
+
+// UploadVideoToCloudinary videoUrl : url relative au pkg/other/cloudinary
+func UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) error {
+	reqURL := fmt.Sprintf("%s?url=%s&id=%s", uploadURL, videoURL, videoID)
+	println("package cloudinary appelé: ", reqURL)
+	resp, err := http.Get(reqURL)
+	if err != nil {
+		return fmt.Errorf("Il y a une erreur dans la requête http: %w", err)
+	}
+	defer resp.Body.Close()
+
+	if resp.StatusCode != http.StatusOK {
+		body, _ := io.ReadAll(resp.Body)
+		return fmt.Errorf("Il y a une erreur dans l'upload de la vidéo, statut: %s, body: %s", resp.Status, string(body))
+	}
+
+	fmt.Println("Les vidéos sont sur Cloudinary")
+	return nil
+
 }

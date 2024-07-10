@@ -19,5 +19,7 @@ func SetupRouter(sessionService *services.SessionService) *chi.Mux {
 	r.Get("/sessions/start/{is_autopilot}", sessionHandler.Start())
 	r.Get("/sessions/stop", sessionHandler.Stop())
 	r.Get("/sessions/info", sessionHandler.GetAllSessionInfo())
+	r.Get("/export-video", sessionHandler.ExportVideoToCloudinary())
+
 	return r
 }
