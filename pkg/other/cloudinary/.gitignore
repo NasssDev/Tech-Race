@@ -8,3 +8,5 @@
 *.dylib
 
 go.work
+
+tmp

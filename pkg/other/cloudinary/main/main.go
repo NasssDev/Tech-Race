@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"fmt"
 	"github.com/cloudinarace/entity"
 	"github.com/cloudinarace/handler"
@@ -32,13 +33,24 @@ func serveHome(w http.ResponseWriter, r *http.Request) {
 }
 
 func main() {
+	// Define and parse the port flag
+	port := flag.String("port", "8084", "Port to run the server on")
+	flag.Parse()
+
+	// Set the parsed port in the environment variable
+	err := os.Setenv("PORT", *port)
+	if err != nil {
+		return
+	}
+
+	// Load environment variables from .env file
 	errdot := godotenv.Load()
 	if errdot != nil {
 		log.Fatal("Error loading .env file:", errdot)
 	}
 
 	// Add MIME type for .css files
-	err := mime.AddExtensionType(".css", "text/css")
+	err = mime.AddExtensionType(".css", "text/css")
 	if err != nil {
 		println(err)
 		return
@@ -60,8 +72,9 @@ func main() {
 	http.HandleFunc("/upload-video", handler.UploadVideoHandler(entity.NewContextEntity()))
 	http.HandleFunc("/display-video", handler.DisplayVideoHandler(entity.NewContextEntity()))
 
-	fmt.Println("Starting server on server " + os.Getenv("PORT") + "...")
-	if err := http.ListenAndServe(":"+os.Getenv("PORT"), nil); err != nil {
+	portEnv := os.Getenv("PORT")
+	fmt.Println("Starting server on port " + portEnv + "...")
+	if err := http.ListenAndServe(":"+portEnv, nil); err != nil {
 		log.Fatalf("Server failed to start: %v", err)
 	}
 }
