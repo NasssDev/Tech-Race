@@ -1,14 +1,12 @@
-package main
+package services
 
 import (
 	"encoding/json"
 	"fmt"
+	"github.com/gorilla/websocket"
 	"net/http"
 	"sync"
 	"time"
-
-	"github.com/gorilla/mux"
-	"github.com/gorilla/websocket"
 )
 
 var esp32Conn *websocket.Conn
@@ -133,10 +131,10 @@ func right() {
 	sendMessageToESP32(msg)
 }
 
-func runAutopilot(w http.ResponseWriter, r *http.Request) {
+func runAutopilot() {
 	if autopilotRunning {
-		w.WriteHeader(http.StatusBadRequest)
-		w.Write([]byte("Autopilot already running"))
+		//w.WriteHeader(http.StatusBadRequest)
+		//w.Write([]byte("Autopilot already running"))
 		return
 	}
 
@@ -169,7 +167,7 @@ func runAutopilot(w http.ResponseWriter, r *http.Request) {
 			}
 		}
 	}()
-	w.Write([]byte("Autopilot started"))
+	println("autopilot started")
 }
 
 func stopAutopilot(w http.ResponseWriter, r *http.Request) {
@@ -180,26 +178,5 @@ func stopAutopilot(w http.ResponseWriter, r *http.Request) {
 		w.Write([]byte("Autopilot stopped"))
 	} else {
 		w.Write([]byte("Autopilot not running"))
-	}
-}
-
-func main() {
-	go connectToESP32()
-
-	router := mux.NewRouter()
-
-	router.HandleFunc("/ws", handleConnections)
-	router.HandleFunc("/front", handleFront).Methods("GET")
-	router.HandleFunc("/stop", stopCar).Methods("GET")
-	router.HandleFunc("/back", handleBack).Methods("GET")
-	router.HandleFunc("/left", handleLeft).Methods("GET")
-	router.HandleFunc("/right", handleRight).Methods("GET")
-	router.HandleFunc("/autopilot/start", runAutopilot).Methods("GET")
-	router.HandleFunc("/autopilot/stop", stopAutopilot).Methods("GET")
-
-	fmt.Println("Serveur démarré sur le port 8084")
-	err := http.ListenAndServe(":8084", router)
-	if err != nil {
-		fmt.Println("Erreur lors du démarrage du serveur:", err)
 	}
 }
