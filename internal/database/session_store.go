@@ -85,3 +85,12 @@ func (d *Database) GetTracksBySessionID(sessionID int) ([]models.LineTracking, e
 	}
 	return tracks, nil
 }
+func (d *Database) GetVideosBySessionID(sessionID int) ([]models.Video, error) {
+	videos := []models.Video{}
+	query := "SELECT * FROM Video WHERE id_session = $1"
+	err := d.db.Select(&videos, query, sessionID)
+	if err != nil {
+		return nil, err
+	}
+	return videos, nil
+}

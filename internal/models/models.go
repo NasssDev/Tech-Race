@@ -45,6 +45,7 @@ type SessionInfo struct {
 	EndDate     string          `json:"end_time"`
 	Duration    string          `json:"duration"`
 	IsAutopilot bool            `json:"is_autopilot"`
+	Videos      VideoInfo       `json:"videos"`
 	Collisions  []CollisionInfo `json:"collisions"`
 	Tracks      []TrackInfo     `json:"tracks"`
 }
@@ -60,6 +61,9 @@ type TrackInfo struct {
 	LineTrackingValues []int    `json:"line_tracking_values"`
 	Timestamps         []string `json:"timestamps"`
 }
+type VideoInfo struct {
+	VideoURLs []string `json:"video_urls"`
+}
 
 type DatabaseInterface interface {
 	GetAll() ([]Session, error)
@@ -71,4 +75,5 @@ type DatabaseInterface interface {
 	GetCurrentSessionID() (int, error)
 	GetCollisionsBySessionID(sessionID int) ([]Collision, error)
 	GetTracksBySessionID(sessionID int) ([]LineTracking, error)
+	GetVideosBySessionID(sessionID int) ([]Video, error)
 }

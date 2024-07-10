@@ -85,7 +85,16 @@ func (s *SessionService) GetAllSessionInfo() ([]models.SessionInfo, error) {
 		if err != nil {
 			return nil, err
 		}
-
+		videos, err := s.db.GetVideosBySessionID(session.ID)
+		if err != nil {
+			return nil, err
+		}
+		videoInfo := models.VideoInfo{
+			VideoURLs: make([]string, len(videos)),
+		}
+		for i, video := range videos {
+			videoInfo.VideoURLs[i] = video.VideoURL
+		}
 		collisionInfo := models.CollisionInfo{
 			Count:      len(collisions),
 			Distances:  make([]float64, len(collisions)),
@@ -140,6 +149,7 @@ func (s *SessionService) GetAllSessionInfo() ([]models.SessionInfo, error) {
 			EndDate:     endDate,
 			Duration:    durationStr,
 			IsAutopilot: session.IsAutopilot,
+			Videos:      videoInfo,
 			Collisions:  []models.CollisionInfo{collisionInfo},
 			Tracks:      []models.TrackInfo{trackInfo},
 		}
