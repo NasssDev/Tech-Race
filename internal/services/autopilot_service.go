@@ -1,7 +1,6 @@
 package services
 
 import (
-	"encoding/json"
 	"fmt"
 	"github.com/gorilla/websocket"
 	"net/http"
@@ -56,57 +55,12 @@ func sendMessageToESP32(message Message) {
 	}
 }
 
-func handleConnections(w http.ResponseWriter, r *http.Request) {
-	ws, err := upgrader.Upgrade(w, r, nil)
-	if err != nil {
-		fmt.Println("Erreur lors de l'upgrade:", err)
-		return
-	}
-	defer ws.Close()
-
-	for {
-		var msg Message
-		err := ws.ReadJSON(&msg)
-		if err != nil {
-			fmt.Println("Erreur lors de la lecture du message:", err)
-			break
-		}
-		fmt.Printf("Message reçu: %+v\n", msg)
-	}
-}
-
-func handleFront(w http.ResponseWriter, r *http.Request) {
-	msg := Message{Cmd: 1, Data: []int{500, 500, 500, 500}}
+func goStraight() {
+	msg := Message{Cmd: 1, Data: []int{300, 300, 300, 300}}
 	sendMessageToESP32(msg)
-	json.NewEncoder(w).Encode(msg)
 }
 
-func stopCar(w http.ResponseWriter, r *http.Request) {
-	msg := Message{Cmd: 1, Data: []int{0, 0, 0, 0}}
-	sendMessageToESP32(msg)
-	json.NewEncoder(w).Encode(msg)
-}
-
-func handleBack(w http.ResponseWriter, r *http.Request) {
-	msg := Message{Cmd: 1, Data: []int{-500, -500, -500, -500}}
-	sendMessageToESP32(msg)
-	json.NewEncoder(w).Encode(msg)
-}
-
-func handleLeft(w http.ResponseWriter, r *http.Request) {
-	msg := Message{Cmd: 1, Data: []int{0, 0, 2000, 2000}}
-	sendMessageToESP32(msg)
-	json.NewEncoder(w).Encode(msg)
-}
-
-func handleRight(w http.ResponseWriter, r *http.Request) {
-	// FL BL FR BR
-	msg := Message{Cmd: 1, Data: []int{2000, 2000, 0, 0}}
-	sendMessageToESP32(msg)
-	json.NewEncoder(w).Encode(msg)
-}
-
-func front() {
+func pushCar() {
 	msg := Message{Cmd: 1, Data: []int{500, 500, 500, 500}}
 	sendMessageToESP32(msg)
 }
@@ -116,25 +70,23 @@ func stop() {
 	sendMessageToESP32(msg)
 }
 
-func back() {
-	msg := Message{Cmd: 1, Data: []int{-500, -500, -500, -500}}
+func goBack() {
+	msg := Message{Cmd: 1, Data: []int{-50, -50, -50, -50}}
 	sendMessageToESP32(msg)
 }
 
-func left() {
+func goLeft() {
 	msg := Message{Cmd: 1, Data: []int{0, 0, 2000, 2000}}
 	sendMessageToESP32(msg)
 }
 
-func right() {
+func goRight() {
 	msg := Message{Cmd: 1, Data: []int{2000, 2000, 0, 0}}
 	sendMessageToESP32(msg)
 }
 
 func runAutopilot() {
 	if autopilotRunning {
-		//w.WriteHeader(http.StatusBadRequest)
-		//w.Write([]byte("Autopilot already running"))
 		return
 	}
 
@@ -153,30 +105,26 @@ func runAutopilot() {
 		for {
 			select {
 			case <-autopilotStop:
-				stop()
+				stopAutopilot()
 				return
 			case <-ticker.C:
 				// Simulate autopilot behavior
-				front()
-				time.Sleep(1 * time.Second)
-				left()
-				time.Sleep(1 * time.Second)
-				front()
-				time.Sleep(1 * time.Second)
-				right()
+				pushCar()
+				goStraight()
+				time.Sleep(2 * time.Second)
 			}
 		}
 	}()
 	println("autopilot started")
 }
 
-func stopAutopilot(w http.ResponseWriter, r *http.Request) {
+func stopAutopilot() {
 	if autopilotRunning {
 		stop()
 		close(autopilotStop)
 		autopilotRunning = false
-		w.Write([]byte("Autopilot stopped"))
+		println("Autopilot stopped")
 	} else {
-		w.Write([]byte("Autopilot not running"))
+		println("Autopilot not running")
 	}
 }
