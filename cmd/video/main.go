@@ -7,7 +7,6 @@ import (
 	"io"
 	"net"
 	"os/exec"
-	"runtime"
 	"time"
 )
 
@@ -25,22 +24,7 @@ func main() {
 	}
 	defer conn.Close()
 
-	//cmd := exec.Command("./ffmpeg-linux", "-f", "mjpeg", "-i", "-", "output.mp4")
-	os := runtime.GOOS
-	var ffmpegPath string
-	if os == "windows" {
-		fmt.Println("Windows OS")
-		ffmpegPath = "bin/ffmpeg/ffmpeg.exe"
-	}
-	if os == "linux" {
-		fmt.Println("Linux OS")
-		ffmpegPath = "bin/ffmpeg/ffmpeg-linux"
-	}
-	if os == "darwin" {
-		fmt.Println("Mac OS")
-		ffmpegPath = "bin/ffmpeg/ffmpeg-mac"
-	}
-	cmd := exec.Command(ffmpegPath, "-f", "mjpeg", "-i", "-", "output.mp4")
+	cmd := exec.Command("./ffmpeg", "-f", "mjpeg", "-i", "-", "output.mp4")
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		fmt.Println("Error creating stdin pipe:", err)
@@ -54,7 +38,7 @@ func main() {
 	}
 
 	if err := cmd.Start(); err != nil {
-		fmt.Println("Error starting ffmpeg-linux:", err)
+		fmt.Println("Error starting ffmpeg:", err)
 		return
 	}
 
@@ -98,7 +82,7 @@ func main() {
 			frameData := frame[headerEnd+4:]
 			if len(frameData) > 0 {
 				if _, err := stdin.Write(frameData); err != nil {
-					fmt.Println("Error writing to ffmpeg-linux:", err)
+					fmt.Println("Error writing to ffmpeg:", err)
 					return
 				}
 			}
@@ -112,6 +96,6 @@ func main() {
 
 	stdin.Close()
 	if err := cmd.Wait(); err != nil {
-		fmt.Println("Error waiting for ffmpeg-linux to finish:", err)
+		fmt.Println("Error waiting for ffmpeg to finish:", err)
 	}
 }

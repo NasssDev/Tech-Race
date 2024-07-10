@@ -56,6 +56,10 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		videoservice := services.NewVideoService()
+		videoservice.StartRecording(h.sessionService)
+
 		w.Write([]byte("Session started\n"))
 	}
 }
@@ -67,6 +71,9 @@ func (h *SessionHandler) Stop() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		videoservice := services.NewVideoService()
+		videoservice.IsRecording = false
+
 		w.Write([]byte("Session stopped\n"))
 	}
 }

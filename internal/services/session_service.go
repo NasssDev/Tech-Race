@@ -8,8 +8,7 @@ import (
 )
 
 type SessionService struct {
-	db   models.DatabaseInterface
-	info models.SessionInfo
+	db models.DatabaseInterface
 }
 
 func NewSessionService(db models.DatabaseInterface) *SessionService {
