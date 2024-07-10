@@ -3,6 +3,7 @@ package mqtt
 import (
 	"fmt"
 	MQTT "github.com/eclipse/paho.mqtt.golang"
+	"github.com/gorilla/websocket"
 	"hetic/tech-race/internal/models"
 	"strconv"
 	"strings"
@@ -50,7 +51,6 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 	switch topic {
 	case "esp32/track":
 		value, err := strconv.Atoi(string(msg.Payload()))
-		println("the current value ", value)
 		if err != nil {
 			fmt.Println(err)
 			return
@@ -62,6 +62,36 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 			if err != nil {
 				fmt.Println(err)
 			}
+		}
+
+		c, _, err := websocket.DefaultDialer.Dial("ws://192.168.31.10/ws", nil)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		defer c.Close()
+		var payload map[string]interface{}
+		switch value {
+		case 7:
+			payload = map[string]interface{}{
+				"cmd":  1,
+				"data": [4]int{500, 500, 500, 500},
+			}
+		case 6:
+			payload = map[string]interface{}{
+				"cmd":  1,
+				"data": [4]int{0, 0, 500, 500},
+			}
+		case 3:
+			payload = map[string]interface{}{
+				"cmd":  1,
+				"data": [4]int{500, 500, 0, 0},
+			}
+		}
+		err = c.WriteJSON(payload)
+		if err != nil {
+			fmt.Println(err)
+			return
 		}
 	case "esp32/sonar":
 		distanceStr := strings.TrimSpace(string(msg.Payload()))
