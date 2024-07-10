@@ -20,6 +20,7 @@ CREATE SEQUENCE "lineTracking_id_seq" INCREMENT 1 MINVALUE 1 MAXVALUE 2147483647
 CREATE TABLE "public"."linetracking" (
     "id" integer DEFAULT nextval('"lineTracking_id_seq"') NOT NULL,
     "line_tracking_value" integer NOT NULL,
+    "timestamp" timestamp NOT NULL,
     "id_session" integer NOT NULL,
     CONSTRAINT "lineTracking_pkey" PRIMARY KEY ("id")
 ) WITH (oids = false);

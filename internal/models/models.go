@@ -50,13 +50,15 @@ type SessionInfo struct {
 }
 
 type CollisionInfo struct {
-	Count      int      `json:"count"`
-	Timestamps []string `json:"timestamps"`
+	Count      int       `json:"count"`
+	Distances  []float64 `json:"distances"`
+	Timestamps []string  `json:"timestamps"`
 }
 
 type TrackInfo struct {
-	Count      int      `json:"count"`
-	Timestamps []string `json:"timestamps"`
+	Count              int      `json:"count"`
+	LineTrackingValues []int    `json:"line_tracking_values"`
+	Timestamps         []string `json:"timestamps"`
 }
 
 type DatabaseInterface interface {
