@@ -6,6 +6,7 @@ import (
 	"hetic/tech-race/internal/router"
 	"hetic/tech-race/internal/services"
 	"log"
+	"mime"
 	"net/http"
 )
 
@@ -17,6 +18,11 @@ func main() {
 	dbWrapper := database.NewDatabase(db)
 
 	sessionService := services.NewSessionService(dbWrapper)
+
+	err := mime.AddExtensionType(".css", "text/css")
+	if err != nil {
+		log.Fatal("Error adding MIME type for .css files:", err)
+	}
 
 	r := router.SetupRouter(sessionService)
 
