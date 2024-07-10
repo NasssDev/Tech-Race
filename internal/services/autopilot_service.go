@@ -27,7 +27,7 @@ var upgrader = websocket.Upgrader{
 
 func connectToESP32() {
 	var err error
-	esp32Conn, _, err = websocket.DefaultDialer.Dial("ws://192.168.31.10/ws", nil) // Replace with your ESP32 IP
+	esp32Conn, _, err = websocket.DefaultDialer.Dial("ws://192.168.1.10/ws", nil) // Replace with your ESP32 IP
 	if err != nil {
 		fmt.Println("Erreur lors de la connexion à l'ESP32:", err)
 		esp32Connected = false

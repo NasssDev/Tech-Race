@@ -77,7 +77,7 @@ func (s *SessionService) runAutoPilot(msg MQTT.Message) {
 		}
 	}
 
-	c, _, err := websocket.DefaultDialer.Dial("ws://192.168.31.10/ws", nil)
+	c, _, err := websocket.DefaultDialer.Dial("ws://192.168.1.10/ws", nil)
 	if err != nil {
 		fmt.Println(err)
 		return
