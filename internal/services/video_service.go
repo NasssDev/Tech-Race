@@ -4,7 +4,6 @@ import (
 	"bufio"
 	"bytes"
 	"fmt"
-	"hetic/tech-race/internal/models"
 	"io"
 	"net"
 	"net/http"
@@ -16,14 +15,13 @@ import (
 )
 
 const (
-	serverIP = "192.168.31.10"
+	serverIP = "192.168.1.10"
 	port     = 7000
 	boundary = "--123456789000000000000987654321"
 )
 
 type VideoService struct {
 	IsRecording bool
-	db          models.DatabaseInterface
 }
 
 func NewVideoService() *VideoService {
@@ -138,13 +136,13 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 		fmt.Println("Error waiting for ffmpeg to finish:", err)
 	}
 	// Upload video to Cloudinary
-	err = UploadVideoToCloudinary("http://localhost:8045/upload-video", filepath.Join(dir, videoName+".mp4"), videoName)
-	if err != nil {
-		fmt.Println("Error uploading video:", err)
-
-	}
+	//err = UploadVideoToCloudinary("http://localhost:8045/upload-video", filepath.Join(dir, videoName+".mp4"), videoName)
+	//if err != nil {
+	//	fmt.Println("Error uploading video:", err)
+	//
+	//}
 	// delete video from local
-	err = OS.Remove(filepath.Join(dir, videoName+".mp4"))
+	//err = OS.Remove(filepath.Join(dir, videoName+".mp4"))
 }
 
 func setPathCheckingOS() string {
