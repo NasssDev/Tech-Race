@@ -51,7 +51,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 
 	createVideoDir(dir)
 
-	cmd := exec.Command(ffmpegPath, "-f", "mjpeg", "-i", "-", filepath.Join(dir, videoName+".mp4"))
+	cmd := exec.Command(ffmpegPath, "-f", "mjpeg", "-i", "-", "-c:v", "libx264", filepath.Join(dir, videoName+".mp4"))
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		fmt.Println("Error creating stdin pipe:", err)
@@ -137,6 +137,14 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	if err := cmd.Wait(); err != nil {
 		fmt.Println("Error waiting for ffmpeg to finish:", err)
 	}
+	// Upload video to Cloudinary
+	err = UploadVideoToCloudinary("http://localhost:8045/upload-video", filepath.Join(dir, videoName+".mp4"), videoName)
+	if err != nil {
+		fmt.Println("Error uploading video:", err)
+
+	}
+	// delete video from local
+	err = OS.Remove(filepath.Join(dir, videoName+".mp4"))
 }
 
 func setPathCheckingOS() string {
