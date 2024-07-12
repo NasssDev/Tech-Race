@@ -85,3 +85,12 @@ func (d *Database) GetTracksBySessionID(sessionID int) ([]models.LineTracking, e
 	}
 	return tracks, nil
 }
+
+func (d *Database) InsertVideoData(data models.Video) error {
+	query := `INSERT INTO video (video_url, id_session) VALUES ($1, $2)`
+	_, err := d.db.Exec(query, data.VideoURL, data.IDSession)
+	if err != nil {
+		return err
+	}
+	return nil
+}

@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"hetic/tech-race/internal/models"
 	"github.com/xi2/xz"
 	"hetic/tech-race/internal/models"
 	"io"
@@ -39,14 +40,18 @@ func NewVideoService() *VideoService {
 
 type UploadService struct {
 	db models.DatabaseInterface
-	w  http.ResponseWriter
 }
 
 func NewUploadService(db models.DatabaseInterface) *UploadService {
 	return &UploadService{db: db}
 }
 
-func (v *VideoService) StartRecording(sessionService *SessionService) {
+type recordingData struct {
+	VideoName           string
+	PathToSuppressVideo string
+}
+
+func (v *VideoService) StartRecording(sessionService *SessionService) (*recordingData, error) {
 
 	// use this name to save the video in CLOUDINARY
 	videoName := time.Now().Format("2006-01-02T15:04:05")
@@ -54,7 +59,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", serverIP, port))
 	if err != nil {
 		fmt.Println("Error connecting:", err)
-		return
+		return nil, fmt.Errorf("il y a une erreur dans la requête  de la vidéo au serveur mqtt: %w", err)
 	}
 	defer conn.Close()
 
@@ -78,28 +83,28 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		fmt.Println("Error creating stdin pipe:", err)
-		return
+		return nil, fmt.Errorf("il y a une erreur lors de la transformation en libx264: %w", err)
 	}
 
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		fmt.Println("Error creating stderr pipe:", err)
-		return
+		return nil, fmt.Errorf("il y a une erreur dans la création de stderr pipe: %w", err)
 	}
 
 	// display error message depends on OS
 	if err := cmd.Start(); err != nil {
 		if runtime.GOOS == "windows" {
 			fmt.Println("Error starting ffmpeg.exe:", err)
-			return
+			return nil, fmt.Errorf("erreur dans le lancement de ffmpeg.exe sur windows: %w", err)
 		}
 		if runtime.GOOS == "darwin" {
 			fmt.Println("Error starting ffmpeg-mac:", err)
-			return
+			return nil, fmt.Errorf("erreur dans le lancement de ffmpeg.exe sur darwin (mac): %w", err)
 		}
 		if runtime.GOOS == "linux" {
 			fmt.Println("Error starting ffmpeg-linux:", err)
-			return
+			return nil, fmt.Errorf("erreur dans le lancement de ffmpeg.exe sur linux: %w", err)
 		}
 	}
 
@@ -142,7 +147,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 			if len(frameData) > 0 {
 				if _, err := stdin.Write(frameData); err != nil {
 					fmt.Println("Error writing to ffmpeg:", err)
-					return
+					return nil, fmt.Errorf("erreur dans la création de la frameData: %w", err)
 				}
 			}
 		}
@@ -156,18 +161,24 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	}
 
 	err = stdin.Close()
+	if err != nil {
+		fmt.Println("Error closing stdin:", err)
+		return nil, fmt.Errorf("erreur dans la fermeture du stdin: %w", err)
+	}
 
 	if err := cmd.Wait(); err != nil {
 		fmt.Println("Error waiting for ffmpeg to finish:", err)
 	}
 	// Upload video to Cloudinary
-	//err = UploadVideoToCloudinary("http://localhost:8045/upload-video", filepath.Join(dir, videoName+".mp4"), videoName)
-	//if err != nil {
-	//	fmt.Println("Error uploading video:", err)
-	//
-	//}
+
 	// delete video from local
 	//err = OS.Remove(filepath.Join(dir, videoName+".mp4"))
+
+	return &recordingData{
+		VideoName:           videoName,
+		PathToSuppressVideo: filepath.Join(dir, videoName+".mp4"),
+	}, nil
+
 }
 
 func setPathCheckingOS() string {
@@ -203,7 +214,7 @@ func createVideoDir(dir string) error {
 }
 
 // UploadVideoToCloudinary videoUrl : url relative au pkg/other/cloudinary
-func (u *UploadService) UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) models.AssetData {
+func UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) (models.AssetData, error) {
 
 	//test : upload-video?url=../../../tmp/video/2024-07-11T16:29:13.mp4&id=2024-07-11T16:29:13
 	url := fmt.Sprintf("%s?url=%s&id=%s", uploadURL, videoURL, videoID)
@@ -243,19 +254,25 @@ func (u *UploadService) UploadVideoToCloudinary(uploadURL string, videoURL strin
 
 	fmt.Println(assetData.Data.Data.URL)
 
-	videoPath := assetData.Data.Data.URL
-	sessionID, err := u.db.GetCurrentSessionID()
+	return assetData, nil
+}
+
+func (u *UploadService) InsertVideo(videoPath string) error {
+
+	// sessionID, err := u.db.GetCurrentSessionID()
+	// if err != nil {
+	// 	println("problem getting session id")
+	// }
+
+	data := models.Video{VideoURL: videoPath, IDSession: 12445}
+	err := u.db.InsertVideoData(data)
 	if err != nil {
-		println("problem getting session id")
-		http.Error(u.w, err.Error(), http.StatusInternalServerError)
-	}
-	data := models.Video{VideoURL: videoPath, IDSession: sessionID}
-	err = u.db.InsertVideoData(data)
-	if err != nil {
-		fmt.Println(err)
+		println("problème d'insertion de la video en bdd")
+		return err
 	}
 
-	return assetData
+	println("insertion réussie de l'url de la video en bdd")
+	return nil
 }
 
 func DownloadAndExtractFFMPEG() (string, error) {
