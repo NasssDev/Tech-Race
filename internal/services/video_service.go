@@ -272,8 +272,7 @@ func (u *UploadService) InsertVideo(videoPath string) error {
 		return err
 	}
 
-	println("insertion réussie de l'url de la video en bdd")
-	return nil
+	return assetData
 }
 
 func DownloadAndExtractFFMPEG(currentOS string) (string, error) {
