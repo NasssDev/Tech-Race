@@ -31,11 +31,16 @@ run-cloudinary-air:
 run-tech-race:
 	$(RUN_TECHRACEAPI)
 
+tidy-cloud:
+	cd pkg/other/cloudinary  && go mod tidy
+
 cloud-docker: up exec
 
 cloud-down : down
 
 start-cloudinarace: run-cloudinarace
+
+cloudinarace-tidy: tidy-cloud
 
 cloud-air: run-cloudinary-air
 

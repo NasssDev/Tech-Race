@@ -2,11 +2,12 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"hetic/tech-race/internal/services"
 	"hetic/tech-race/pkg/util"
 	"net/http"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type SessionHandler struct {
@@ -61,16 +62,6 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 		videoservice.StartRecording(h.sessionService)
 
 		w.Write([]byte("Session started\n"))
-	}
-}
-
-func (h *SessionHandler) ExportVideoToCloudinary() http.HandlerFunc {
-	return func(w http.ResponseWriter, r *http.Request) {
-		var cloudinaryPackageUrl = "http://localhost:8045/upload-video"
-		err := services.UploadVideoToCloudinary(cloudinaryPackageUrl, "../../../tmp/output.mp4", "freenov")
-		if err != nil {
-			fmt.Println("Error uploading video:", err)
-		}
 	}
 }
 

@@ -1,16 +1,23 @@
 package services
 
 import (
+	"archive/tar"
+	"archive/zip"
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
+	"github.com/xi2/xz"
+	"hetic/tech-race/internal/models"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	OS "os"
 	"os/exec"
 	"path/filepath"
 	"runtime"
+	"strings"
 	"time"
 )
 
@@ -30,7 +37,19 @@ func NewVideoService() *VideoService {
 	}
 }
 
+type UploadService struct {
+	db models.DatabaseInterface
+	w  http.ResponseWriter
+}
+
+func NewUploadService(db models.DatabaseInterface) *UploadService {
+	return &UploadService{db: db}
+}
+
 func (v *VideoService) StartRecording(sessionService *SessionService) {
+
+	// use this name to save the video in CLOUDINARY
+	videoName := time.Now().Format("2006-01-02T15:04:05")
 
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", serverIP, port))
 	if err != nil {
@@ -42,10 +61,8 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	// use the good binary depends on OS
 	ffmpegPath := setPathCheckingOS()
 
+	// Chemin du fichier temporaire : relatif à la racine du package cloudinary
 	dir := "tmp/video"
-
-	// use this name to save the video in CLOUDINARY
-	videoName := time.Now().Format("2006-01-02T15:04:05")
 
 	createVideoDir(dir)
 
@@ -177,21 +194,208 @@ func createVideoDir(dir string) {
 }
 
 // UploadVideoToCloudinary videoUrl : url relative au pkg/other/cloudinary
-func UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) error {
-	reqURL := fmt.Sprintf("%s?url=%s&id=%s", uploadURL, videoURL, videoID)
-	println("package cloudinary appelé: ", reqURL)
-	resp, err := http.Get(reqURL)
+func (u *UploadService) UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) models.AssetData {
+
+	//test : upload-video?url=../../../tmp/video/2024-07-11T16:29:13.mp4&id=2024-07-11T16:29:13
+	url := fmt.Sprintf("%s?url=%s&id=%s", uploadURL, videoURL, videoID)
+	println("package cloudinary appelé: ", url)
+
+	cloudinaryClient := http.Client{
+		Timeout: 0, // Timeout after 2 seconds
+	}
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return fmt.Errorf("Il y a une erreur dans la requête http: %w", err)
+		log.Fatal(err)
+	}
+
+	req.Header.Set("User-Agent", "techrace-cloudinary")
+
+	res, getErr := cloudinaryClient.Do(req)
+	if getErr != nil {
+		log.Fatal(getErr)
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	body, readErr := io.ReadAll(res.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	assetData := models.AssetData{}
+	jsonErr := json.Unmarshal(body, &assetData)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+	}
+	println("json response is ok")
+
+	fmt.Println(assetData.Data.Data.URL)
+
+	videoPath := assetData.Data.Data.URL
+	sessionID, err := u.db.GetCurrentSessionID()
+	if err != nil {
+		println("problem getting session id")
+		http.Error(u.w, err.Error(), http.StatusInternalServerError)
+	}
+	data := models.Video{VideoURL: videoPath, IDSession: sessionID}
+	err = u.db.InsertVideoData(data)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return assetData
+}
+
+func DownloadAndExtractFFMPEG() (string, error) {
+	ffmpegDir := "../../bin"
+	var url string
+
+	switch runtime.GOOS {
+	case "windows":
+		url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+	case "linux":
+		url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+	case "darwin":
+		url = "https://evermeet.cx/ffmpeg/ffmpeg-4.3.1.zip"
+	default:
+		return "", fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
+	}
+
+	resp, err := http.Get(url)
+	if err != nil {
+		return "", err
 	}
 	defer resp.Body.Close()
 
 	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("Il y a une erreur dans l'upload de la vidéo, statut: %s, body: %s", resp.Status, string(body))
+		return "", fmt.Errorf("failed to download file: status code %d", resp.StatusCode)
 	}
 
-	fmt.Println("Les vidéos sont sur Cloudinary")
-	return nil
+	// Create the ffmpeg directory if it does not exist
+	err = OS.MkdirAll(ffmpegDir, 0755)
+	if err != nil {
+		return "", err
+	}
 
+	if runtime.GOOS == "darwin" {
+		// Handle ZIP file for macOS
+		zipFile, err := OS.Create(filepath.Join(ffmpegDir, "ffmpeg.zip"))
+		if err != nil {
+			return "", err
+		}
+		defer zipFile.Close()
+
+		_, err = io.Copy(zipFile, resp.Body)
+		if err != nil {
+			return "", err
+		}
+
+		// Unzip the file
+		err = unzip(filepath.Join(ffmpegDir, "ffmpeg.zip"), ffmpegDir)
+		if err != nil {
+			return "", err
+		}
+
+		return filepath.Join(ffmpegDir, "ffmpeg"), nil
+	}
+
+	//Handle .tar.xz files for Windows and Linux
+	xzr, err := xz.NewReader(resp.Body, 0)
+	if err != nil {
+		return "", err
+	}
+
+	tr := tar.NewReader(xzr)
+	if err != nil {
+		fmt.Println("Error reading tar file firstHeader:")
+		return "", err
+	}
+
+	for {
+		header, err := tr.Next()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return "", err
+		}
+
+		target := filepath.Join(ffmpegDir, header.Name)
+		fmt.Println("Extracting TARGET :", target)
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if _, err := OS.Stat(target); OS.IsNotExist(err) {
+				if err := OS.MkdirAll(target, 0755); err != nil {
+					return "", err
+				}
+			}
+		case tar.TypeReg:
+			f, err := OS.OpenFile(target, OS.O_CREATE|OS.O_RDWR, OS.FileMode(header.Mode))
+			if err != nil {
+				return "", err
+			}
+
+			if _, err := io.Copy(f, tr); err != nil {
+				return "", err
+			}
+
+			parts := strings.Split(target, "/")
+			if len(parts) > 0 && parts[len(parts)-1] == "ffmpeg" {
+				ffmpegDir = target
+			}
+
+			f.Close()
+		}
+	}
+
+	return filepath.Join(ffmpegDir), nil
+}
+
+func unzip(src, dest string) error {
+	r, err := zip.OpenReader(src)
+	if err != nil {
+		return err
+	}
+	defer r.Close()
+
+	for _, f := range r.File {
+		fpath := filepath.Join(dest, f.Name)
+
+		if f.FileInfo().IsDir() {
+			if err := OS.MkdirAll(fpath, OS.ModePerm); err != nil {
+				return err
+			}
+			continue
+		}
+
+		if err := OS.MkdirAll(filepath.Dir(fpath), OS.ModePerm); err != nil {
+			return err
+		}
+
+		outFile, err := OS.OpenFile(fpath, OS.O_WRONLY|OS.O_CREATE|OS.O_TRUNC, f.Mode())
+		if err != nil {
+			return err
+		}
+
+		rc, err := f.Open()
+		if err != nil {
+			return err
+		}
+
+		_, err = io.Copy(outFile, rc)
+
+		outFile.Close()
+		rc.Close()
+
+		if err != nil {
+			return err
+		}
+	}
+	return nil
 }

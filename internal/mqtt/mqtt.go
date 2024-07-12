@@ -23,7 +23,7 @@ func NewMQTTClient(db models.DatabaseInterface) *MQTTClient {
 func (m *MQTTClient) ConnectAndSubscribe() error {
 	_, err := m.db.GetCurrentSessionID()
 	if err != nil {
-		fmt.Println(err)
+		//fmt.Println(err)
 		return nil
 	}
 	if token := m.client.Connect(); token.Wait() && token.Error() != nil {
@@ -44,14 +44,14 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 	topic := msg.Topic()
 	sessionID, err := m.db.GetCurrentSessionID()
 	if err != nil {
-		fmt.Println(err)
+		//fmt.Println(err)
 		return
 	}
 	switch topic {
 	case "esp32/track":
 		value, err := strconv.Atoi(string(msg.Payload()))
 		if err != nil {
-			fmt.Println(err)
+			//fmt.Println(err)
 			return
 		}
 		if value < 7 {
