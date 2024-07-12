@@ -2,15 +2,16 @@ package main
 
 import (
 	"flag"
-	"fmt"
-	"github.com/cloudinarace/entity"
-	"github.com/cloudinarace/handler"
-	"github.com/joho/godotenv"
 	"log"
 	"mime"
 	"net/http"
 	"os"
 	"text/template"
+
+	"github.com/cloudinarace/entity"
+	"github.com/cloudinarace/handler"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 func serveHome(w http.ResponseWriter, r *http.Request) {
@@ -63,18 +64,31 @@ func main() {
 		return
 	}
 
+	r := gin.Default()
+	r.GET("/ping", func(c *gin.Context) {
+		c.JSON(200, gin.H{
+			"message": "pong",
+		})
+	})
+
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
 	http.HandleFunc("/", serveHome)
 	http.HandleFunc("/upload", handler.UploadImageHandler(entity.NewContextEntity()))
 	http.HandleFunc("/info", handler.GetAssetInfoHandler(entity.NewContextEntity()))
 	http.HandleFunc("/transform", handler.TransformImageHandler(entity.NewContextEntity()))
 	http.HandleFunc("/display", handler.DisplayImageHandler(entity.NewContextEntity()))
-	http.HandleFunc("/upload-video", handler.UploadVideoHandler(entity.NewContextEntity()))
+
 	http.HandleFunc("/display-video", handler.DisplayVideoHandler(entity.NewContextEntity()))
 
+	// test : upload-video?url=../../../tmp/video/2024-07-11T16:29:13.mp4&id=2024-07-11T16:29:13
+	r.GET("/upload-video", handler.UploadVideoHandlerGin(entity.NewContextEntity()))
+
 	portEnv := os.Getenv("PORT")
-	fmt.Println("Starting server on port " + portEnv + "...")
-	if err := http.ListenAndServe(":"+portEnv, nil); err != nil {
-		log.Fatalf("Server failed to start: %v", err)
-	}
+
+	r.Run(":" + portEnv)
+
+	// fmt.Println("Starting server on port " + portEnv + "...")
+	// if err := http.ListenAndServe(":"+portEnv, nil); err != nil {
+	// 	log.Fatalf("Server failed to start: %v", err)
+	// }
 }

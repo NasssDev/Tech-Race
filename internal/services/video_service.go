@@ -3,8 +3,10 @@ package services
 import (
 	"bufio"
 	"bytes"
+	"encoding/json"
 	"fmt"
 	"io"
+	"log"
 	"net"
 	"net/http"
 	OS "os"
@@ -30,7 +32,19 @@ func NewVideoService() *VideoService {
 	}
 }
 
+type UploadService struct {
+	db models.DatabaseInterface
+	w  http.ResponseWriter
+}
+
+func NewUploadService(db models.DatabaseInterface) *UploadService {
+	return &UploadService{db: db}
+}
+
 func (v *VideoService) StartRecording(sessionService *SessionService) {
+
+	// use this name to save the video in CLOUDINARY
+	videoName := time.Now().Format("2006-01-02T15:04:05")
 
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", serverIP, port))
 	if err != nil {
@@ -42,10 +56,8 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	// use the good binary depends on OS
 	ffmpegPath := setPathCheckingOS()
 
+	// Chemin du fichier temporaire : relatif à la racine du package cloudinary
 	dir := "tmp/video"
-
-	// use this name to save the video in CLOUDINARY
-	videoName := time.Now().Format("2006-01-02T15:04:05")
 
 	createVideoDir(dir)
 
@@ -177,21 +189,57 @@ func createVideoDir(dir string) {
 }
 
 // UploadVideoToCloudinary videoUrl : url relative au pkg/other/cloudinary
-func UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) error {
-	reqURL := fmt.Sprintf("%s?url=%s&id=%s", uploadURL, videoURL, videoID)
-	println("package cloudinary appelé: ", reqURL)
-	resp, err := http.Get(reqURL)
+func (u *UploadService) UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) models.AssetData {
+
+	//test : upload-video?url=../../../tmp/video/2024-07-11T16:29:13.mp4&id=2024-07-11T16:29:13
+	url := fmt.Sprintf("%s?url=%s&id=%s", uploadURL, videoURL, videoID)
+	println("package cloudinary appelé: ", url)
+
+	cloudinaryClient := http.Client{
+		Timeout: 0, // Timeout after 2 seconds
+	}
+
+	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		return fmt.Errorf("Il y a une erreur dans la requête http: %w", err)
-	}
-	defer resp.Body.Close()
-
-	if resp.StatusCode != http.StatusOK {
-		body, _ := io.ReadAll(resp.Body)
-		return fmt.Errorf("Il y a une erreur dans l'upload de la vidéo, statut: %s, body: %s", resp.Status, string(body))
+		log.Fatal(err)
 	}
 
-	fmt.Println("Les vidéos sont sur Cloudinary")
-	return nil
+	req.Header.Set("User-Agent", "techrace-cloudinary")
 
+	res, getErr := cloudinaryClient.Do(req)
+	if getErr != nil {
+		log.Fatal(getErr)
+	}
+
+	if res.Body != nil {
+		defer res.Body.Close()
+	}
+
+	body, readErr := io.ReadAll(res.Body)
+	if readErr != nil {
+		log.Fatal(readErr)
+	}
+
+	assetData := models.AssetData{}
+	jsonErr := json.Unmarshal(body, &assetData)
+	if jsonErr != nil {
+		log.Fatal(jsonErr)
+	}
+	println("json response is ok")
+
+	fmt.Println(assetData.Data.Data.URL)
+
+	videoPath := assetData.Data.Data.URL
+	sessionID, err := u.db.GetCurrentSessionID()
+	if err != nil {
+		println("problem getting session id")
+		http.Error(u.w, err.Error(), http.StatusInternalServerError)
+	}
+	data := models.Video{VideoURL: videoPath, IDSession: sessionID}
+	err = u.db.InsertVideoData(data)
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	return assetData
 }
