@@ -66,6 +66,17 @@ func (d *Database) GetCurrentSessionID() (int, error) {
 	}
 	return id, nil
 }
+
+func (d *Database) GetLastSessionID() (int, error) {
+	var id int
+	query := `SELECT id FROM Session ORDER BY id DESC LIMIT 1`
+	err := d.db.Get(&id, query)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
 func (d *Database) GetCollisionsBySessionID(sessionID int) ([]models.Collision, error) {
 	collisions := []models.Collision{}
 	query := "SELECT * FROM Collision WHERE id_session = $1"

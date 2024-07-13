@@ -259,12 +259,13 @@ func UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) 
 
 func (u *UploadService) InsertVideo(videoPath string) error {
 
-	// sessionID, err := u.db.GetCurrentSessionID()
-	// if err != nil {
-	// 	println("problem getting session id")
-	// }
+	sessionID, sesserr := u.db.GetLastSessionID()
+	if sesserr != nil {
+		println("problem getting session id", sesserr)
+		return sesserr
+	}
 
-	data := models.Video{VideoURL: videoPath, IDSession: 12445}
+	data := models.Video{VideoURL: videoPath, IDSession: sessionID}
 	err := u.db.InsertVideoData(data)
 	if err != nil {
 		println("problème d'insertion de la video en bdd")

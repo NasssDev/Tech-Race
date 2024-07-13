@@ -43,6 +43,13 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			return
 		}
 
+		//currentSessionId, err := h.sessionService.GetCurrentSessionID()
+		//if err != nil {
+		//println("problem getting session id")
+		//}
+
+		//sessionId := currentSessionId.ID
+
 		isActive, err := h.sessionService.IsSessionActive()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)

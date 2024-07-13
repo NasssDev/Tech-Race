@@ -7,12 +7,24 @@ import (
 	"time"
 )
 
+type SessionServiceID struct {
+	ID int
+}
+
 type SessionService struct {
 	db models.DatabaseInterface
 }
 
 func NewSessionService(db models.DatabaseInterface) *SessionService {
 	return &SessionService{db: db}
+}
+
+func (s *SessionService) GetCurrentSessionID() (SessionServiceID, error) {
+	sessionID, err := s.db.GetCurrentSessionID()
+	if err != nil {
+		return SessionServiceID{}, err
+	}
+	return SessionServiceID{ID: sessionID}, nil
 }
 
 func (s *SessionService) GetAll() ([]models.Session, error) {
