@@ -59,12 +59,20 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	defer conn.Close()
 
 	// use the good binary depends on OS
-	ffmpegPath := setPathCheckingOS()
+	ffmpegPath, err := DownloadAndExtractFFMPEG()
+	if err != nil {
+		fmt.Println("Error during download and extract binary :", err)
+		return
+	}
 
 	// Chemin du fichier temporaire : relatif à la racine du package cloudinary
 	dir := "tmp/video"
 
-	createVideoDir(dir)
+	err = createVideoDir(dir)
+	if err != nil {
+		fmt.Println("Error when creating video dir :", err)
+		return
+	}
 
 	cmd := exec.Command(ffmpegPath, "-f", "mjpeg", "-i", "-", "-c:v", "libx264", filepath.Join(dir, videoName+".mp4"))
 	stdin, err := cmd.StdinPipe()
@@ -180,17 +188,18 @@ func setPathCheckingOS() string {
 	return ""
 }
 
-func createVideoDir(dir string) {
+func createVideoDir(dir string) error {
 	if _, err := OS.Stat(dir); OS.IsNotExist(err) {
 		fmt.Println(dir, "does not exist")
 		err := OS.MkdirAll(dir, 0755)
 		if err != nil {
 			fmt.Println("Error creating directory:", err)
-			return
+			return err
 		}
 	} else {
 		fmt.Println("The provided directory named", dir, "exists")
 	}
+	return nil
 }
 
 // UploadVideoToCloudinary videoUrl : url relative au pkg/other/cloudinary
@@ -250,16 +259,22 @@ func (u *UploadService) UploadVideoToCloudinary(uploadURL string, videoURL strin
 }
 
 func DownloadAndExtractFFMPEG() (string, error) {
+	const (
+		windowsLinuxUrl = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+		macOSUrl        = "https://evermeet.cx/ffmpeg/ffmpeg-4.3.1.zip"
+	)
+
 	ffmpegDir := "../../bin"
+
 	var url string
 
 	switch runtime.GOOS {
 	case "windows":
-		url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+		url = windowsLinuxUrl
 	case "linux":
-		url = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
+		url = windowsLinuxUrl
 	case "darwin":
-		url = "https://evermeet.cx/ffmpeg/ffmpeg-4.3.1.zip"
+		url = macOSUrl
 	default:
 		return "", fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
 	}
@@ -310,7 +325,6 @@ func DownloadAndExtractFFMPEG() (string, error) {
 
 	tr := tar.NewReader(xzr)
 	if err != nil {
-		fmt.Println("Error reading tar file firstHeader:")
 		return "", err
 	}
 
@@ -345,12 +359,11 @@ func DownloadAndExtractFFMPEG() (string, error) {
 				return "", err
 			}
 
-			parts := strings.Split(target, "/")
-			if len(parts) > 0 && parts[len(parts)-1] == "ffmpeg" {
-				ffmpegDir = target
-			}
-
 			f.Close()
+		}
+		parts := strings.Split(target, "/")
+		if len(parts) > 0 && parts[len(parts)-1] == "ffmpeg" {
+			ffmpegDir = target
 		}
 	}
 

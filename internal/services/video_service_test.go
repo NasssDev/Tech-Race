@@ -25,10 +25,6 @@ func TestDownloadAndExtractFFMPEG_SuccessfulDownloadAndExtraction(t *testing.T) 
 
 	fmt.Println("PATHH :", path)
 
-	//if _, err := os.Stat(path); os.IsNotExist(err) {
-	//	t.Errorf("Expected file to exist at path: %s, but it does not", path)
-	//}
-	// assert equal to ../../bin/ffmpeg-7.0.1-amd64-static/ffmpeg
 	assert.Equal(t, path, "../../bin/ffmpeg-7.0.1-amd64-static/ffmpeg")
 }
 
