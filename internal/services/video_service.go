@@ -67,7 +67,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) (*recordin
 	ffmpegPath, err := DownloadAndExtractFFMPEG(v.CurrentOS)
 	if err != nil {
 		fmt.Println("Error during download and extract binary :", err)
-		return
+		return nil, fmt.Errorf("Error during download and extract binary: %w", err)
 	}
 
 	// Chemin du fichier temporaire : relatif à la racine du package cloudinary
@@ -76,7 +76,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) (*recordin
 	err = createVideoDir(dir)
 	if err != nil {
 		fmt.Println("Error when creating video dir :", err)
-		return
+		return nil, fmt.Errorf("Error when creating video dir : %w", err)
 	}
 
 	cmd := exec.Command(ffmpegPath, "-f", "mjpeg", "-i", "-", "-c:v", "libx264", filepath.Join(dir, videoName+".mp4"))
@@ -272,7 +272,8 @@ func (u *UploadService) InsertVideo(videoPath string) error {
 		return err
 	}
 
-	return assetData
+	println("insertion de la video en bdd")
+	return nil
 }
 
 func DownloadAndExtractFFMPEG(currentOS string) (string, error) {
