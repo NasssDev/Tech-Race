@@ -2,6 +2,7 @@ package main
 
 import (
 	"flag"
+	"fmt"
 	"log"
 	"mime"
 	"net/http"
@@ -72,7 +73,7 @@ func main() {
 	})
 
 	http.Handle("/static/", http.StripPrefix("/static/", http.FileServer(http.Dir("static"))))
-	http.HandleFunc("/", serveHome)
+
 	http.HandleFunc("/upload", handler.UploadImageHandler(entity.NewContextEntity()))
 	http.HandleFunc("/info", handler.GetAssetInfoHandler(entity.NewContextEntity()))
 	http.HandleFunc("/transform", handler.TransformImageHandler(entity.NewContextEntity()))
@@ -81,14 +82,16 @@ func main() {
 	http.HandleFunc("/display-video", handler.DisplayVideoHandler(entity.NewContextEntity()))
 
 	// test : upload-video?url=../../../tmp/video/2024-07-11T16:29:13.mp4&id=2024-07-11T16:29:13
+	http.HandleFunc("/", serveHome)
+	r.GET("/")
 	r.GET("/upload-video", handler.UploadVideoHandlerGin(entity.NewContextEntity()))
 
 	portEnv := os.Getenv("PORT")
 
 	r.Run(":" + portEnv)
 
-	// fmt.Println("Starting server on port " + portEnv + "...")
-	// if err := http.ListenAndServe(":"+portEnv, nil); err != nil {
-	// 	log.Fatalf("Server failed to start: %v", err)
-	// }
+	fmt.Println("Starting server on port " + portEnv + "...")
+	if err := http.ListenAndServe(":"+portEnv, nil); err != nil {
+		log.Fatalf("Server failed to start: %v", err)
+	}
 }
