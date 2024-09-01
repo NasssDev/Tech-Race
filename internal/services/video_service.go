@@ -46,12 +46,12 @@ func NewUploadService(db models.DatabaseInterface) *UploadService {
 	return &UploadService{db: db}
 }
 
-type recordingData struct {
+type RecordingData struct {
 	VideoName           string
 	PathToSuppressVideo string
 }
 
-func (v *VideoService) StartRecording(sessionService *SessionService) (*recordingData, error) {
+func (v *VideoService) StartRecording(sessionService *SessionService) (*RecordingData, error) {
 
 	// use this name to save the video in CLOUDINARY
 	videoName := time.Now().Format("2006-01-02T15:04:05")
@@ -174,7 +174,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) (*recordin
 	// delete video from local
 	//err = OS.Remove(filepath.Join(dir, videoName+".mp4"))
 
-	return &recordingData{
+	return &RecordingData{
 		VideoName:           videoName,
 		PathToSuppressVideo: filepath.Join(dir, videoName+".mp4"),
 	}, nil
