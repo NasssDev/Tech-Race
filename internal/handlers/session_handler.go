@@ -5,6 +5,7 @@ import (
 	"hetic/tech-race/internal/services"
 	"hetic/tech-race/pkg/util"
 	"net/http"
+	"runtime"
 	"strconv"
 
 	"github.com/go-chi/chi/v5"
@@ -58,7 +59,7 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			return
 		}
 
-		videoservice := services.NewVideoService()
+		videoservice := services.NewVideoService(runtime.GOOS)
 		videoservice.StartRecording(h.sessionService)
 
 		w.Write([]byte("Session started\n"))
@@ -72,7 +73,7 @@ func (h *SessionHandler) Stop() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-		videoservice := services.NewVideoService()
+		videoservice := services.NewVideoService(runtime.GOOS)
 		videoservice.IsRecording = false
 
 		w.Write([]byte("Session stopped\n"))

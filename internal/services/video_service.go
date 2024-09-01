@@ -16,7 +16,6 @@ import (
 	OS "os"
 	"os/exec"
 	"path/filepath"
-	"runtime"
 	"strings"
 	"time"
 )
@@ -29,11 +28,13 @@ const (
 
 type VideoService struct {
 	IsRecording bool
+	CurrentOS   string
 }
 
-func NewVideoService() *VideoService {
+func NewVideoService(currentOS string) *VideoService {
 	return &VideoService{
 		IsRecording: false,
+		CurrentOS:   currentOS,
 	}
 }
 
@@ -59,7 +60,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	defer conn.Close()
 
 	// use the good binary depends on OS
-	ffmpegPath, err := DownloadAndExtractFFMPEG()
+	ffmpegPath, err := DownloadAndExtractFFMPEG(v.CurrentOS)
 	if err != nil {
 		fmt.Println("Error during download and extract binary :", err)
 		return
@@ -89,15 +90,15 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 
 	// display error message depends on OS
 	if err := cmd.Start(); err != nil {
-		if runtime.GOOS == "windows" {
+		if v.CurrentOS == "windows" {
 			fmt.Println("Error starting ffmpeg.exe:", err)
 			return
 		}
-		if runtime.GOOS == "darwin" {
+		if v.CurrentOS == "darwin" {
 			fmt.Println("Error starting ffmpeg-mac:", err)
 			return
 		}
-		if runtime.GOOS == "linux" {
+		if v.CurrentOS == "linux" {
 			fmt.Println("Error starting ffmpeg-linux:", err)
 			return
 		}
@@ -170,8 +171,8 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	//err = OS.Remove(filepath.Join(dir, videoName+".mp4"))
 }
 
-func setPathCheckingOS() string {
-	os := runtime.GOOS
+func setPathCheckingOS(currentOS string) string {
+	os := currentOS
 	fmmpegDir := "bin/ffmpeg"
 	if os == "windows" {
 		fmt.Println("Windows OS")
@@ -258,7 +259,7 @@ func (u *UploadService) UploadVideoToCloudinary(uploadURL string, videoURL strin
 	return assetData
 }
 
-func DownloadAndExtractFFMPEG() (string, error) {
+func DownloadAndExtractFFMPEG(currentOS string) (string, error) {
 	const (
 		windowsLinuxUrl = "https://johnvansickle.com/ffmpeg/releases/ffmpeg-release-amd64-static.tar.xz"
 		macOSUrl        = "https://evermeet.cx/ffmpeg/ffmpeg-4.3.1.zip"
@@ -268,7 +269,7 @@ func DownloadAndExtractFFMPEG() (string, error) {
 
 	var url string
 
-	switch runtime.GOOS {
+	switch currentOS {
 	case "windows":
 		url = windowsLinuxUrl
 	case "linux":
@@ -276,7 +277,7 @@ func DownloadAndExtractFFMPEG() (string, error) {
 	case "darwin":
 		url = macOSUrl
 	default:
-		return "", fmt.Errorf("unsupported operating system: %s", runtime.GOOS)
+		return "", fmt.Errorf("unsupported operating system: %s", currentOS)
 	}
 
 	resp, err := http.Get(url)
@@ -295,7 +296,7 @@ func DownloadAndExtractFFMPEG() (string, error) {
 		return "", err
 	}
 
-	if runtime.GOOS == "darwin" {
+	if currentOS == "darwin" {
 		// Handle ZIP file for macOS
 		zipFile, err := OS.Create(filepath.Join(ffmpegDir, "ffmpeg.zip"))
 		if err != nil {
@@ -315,6 +316,10 @@ func DownloadAndExtractFFMPEG() (string, error) {
 		}
 
 		return filepath.Join(ffmpegDir, "ffmpeg"), nil
+
+		//ffmpegDir, _ = handleZipFile(ffmpegDir, resp)
+		//fmt.Println("FFMPEG DIR : ", ffmpegDir)
+		//return ffmpegDir, nil
 	}
 
 	//Handle .tar.xz files for Windows and Linux
@@ -411,4 +416,26 @@ func unzip(src, dest string) error {
 		}
 	}
 	return nil
+}
+
+func handleZipFile(ffmpegDir string, resp *http.Response) (string, error) {
+	zipFile, err := OS.Create(filepath.Join(ffmpegDir, "ffmpeg.zip"))
+	if err != nil {
+		return "", err
+	}
+	defer zipFile.Close()
+
+	_, err = io.Copy(zipFile, resp.Body)
+	if err != nil {
+		fmt.Println("Error file ICIII:", err)
+		return "", err
+	}
+
+	err = unzip(filepath.Join(ffmpegDir, "ffmpeg.zip"), ffmpegDir)
+	if err != nil {
+		fmt.Println("Error unzipping file ICIII:", err)
+		return "", err
+	}
+
+	return filepath.Join(ffmpegDir, "ffmpeg"), nil
 }

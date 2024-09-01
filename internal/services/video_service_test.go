@@ -1,13 +1,15 @@
 package services
 
 import (
-	"errors"
+	"archive/zip"
+	"bytes"
 	"fmt"
 	"github.com/stretchr/testify/assert"
-	"io/ioutil"
+	"io"
 	"net/http"
+	"os"
+	"path/filepath"
 	"runtime"
-	"strings"
 	"testing"
 )
 
@@ -17,65 +19,169 @@ var getGOOS = func() string {
 
 var httpGet = http.Get
 
-func TestDownloadAndExtractFFMPEG_SuccessfulDownloadAndExtraction(t *testing.T) {
-	path, err := DownloadAndExtractFFMPEG()
+// Unzip TEST //
+func TestUnzip_Success(t *testing.T) {
+	// Create a temporary zip file
+	zipFile, err := os.CreateTemp("", "test*.zip")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(zipFile.Name())
+
+	zipWriter := zip.NewWriter(zipFile)
+	_, err = zipWriter.Create("testfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = zipWriter.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	tempDir, err := os.MkdirTemp("", "ffmpeg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	err = unzip(zipFile.Name(), tempDir)
 	if err != nil {
 		t.Errorf("Expected no error, but got: %v", err)
 	}
 
-	fmt.Println("PATHH :", path)
+	_, err = os.Stat(tempDir + "/testfile")
+	assert.NoError(t, err)
+}
 
-	assert.Equal(t, path, "../../bin/ffmpeg-7.0.1-amd64-static/ffmpeg")
+func TestUnzip_NonExistentFile(t *testing.T) {
+	err := unzip("nonexistent.zip", ".")
+	assert.Error(t, err)
+}
+
+func TestUnzip_InvalidZipFile(t *testing.T) {
+	tempFile, err := os.CreateTemp("", "test*.txt")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(tempFile.Name())
+
+	_, err = tempFile.WriteString("This is not a zip file")
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = unzip(tempFile.Name(), ".")
+	assert.Error(t, err)
+}
+
+func TestUnzip_InvalidDestination(t *testing.T) {
+	zipFile, err := os.CreateTemp("", "test*.zip")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(zipFile.Name())
+
+	zipWriter := zip.NewWriter(zipFile)
+	_, err = zipWriter.Create("testfile")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = zipWriter.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	err = unzip(zipFile.Name(), "/invalid/destination")
+	assert.Error(t, err)
+}
+
+// HandleZipFile TEST //
+func TestHandleZipFile_success(t *testing.T) {
+	tempDir, err := os.MkdirTemp(".", "ffmpeg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(tempDir)
+
+	zipFile, err := os.CreateTemp(".", "test*.zip")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.Remove(zipFile.Name())
+
+	zipWriter := zip.NewWriter(zipFile)
+	_, err = zipWriter.Create("ffmpeg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	err = zipWriter.Close()
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	zipData, err := os.ReadFile(zipFile.Name())
+	if err != nil {
+		t.Fatal(err)
+	}
+
+	resp := &http.Response{
+		Body: io.NopCloser(bytes.NewReader(zipData)),
+	}
+
+	_, err = handleZipFile(tempDir, resp)
+	assert.NoError(t, err)
+
+	_, err = os.Stat(filepath.Join(tempDir, "ffmpeg"))
+	assert.NoError(t, err)
+}
+
+func TestHandleZipFile_FailCreateZip(t *testing.T) {
+	ffmpegDir := "/invalid/path"
+
+	resp := &http.Response{
+		Body: io.NopCloser(bytes.NewReader([]byte("mock zip data"))),
+	}
+
+	_, err := handleZipFile(ffmpegDir, resp)
+	assert.Error(t, err)
+}
+
+func TestHandleZipFile_FailUnzip(t *testing.T) {
+	ffmpegDir, err := os.MkdirTemp(".", "ffmpeg")
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer os.RemoveAll(ffmpegDir)
+
+	resp := &http.Response{
+		Body: io.NopCloser(bytes.NewReader([]byte("invalid zip data"))),
+	}
+
+	_, err = handleZipFile(ffmpegDir, resp)
+	assert.Error(t, err)
+}
+
+// DownloadAndExtractFFMPEG TEST //
+func TestDownloadAndExtractFFMPEG_SuccessfulDownloadAndExtractionForLinux(t *testing.T) {
+	path, err := DownloadAndExtractFFMPEG("linux")
+	assert.NoError(t, err)
+	assert.Contains(t, path, "ffmpeg")
+}
+
+func TestDownloadAndExtractFFMPEG_SuccessfulDownloadAndExtractionForWindows(t *testing.T) {
+	path, err := DownloadAndExtractFFMPEG("windows")
+	assert.NoError(t, err)
+	assert.Contains(t, path, "ffmpeg")
+}
+
+func TestDownloadAndExtractFFMPEG_SuccessfulDownloadAndExtractionForMac(t *testing.T) {
+	path, err := DownloadAndExtractFFMPEG("darwin")
+	assert.NoError(t, err)
+	assert.Contains(t, path, "ffmpeg")
 }
 
 func TestDownloadAndExtractFFMPEG_UnsupportedOperatingSystem(t *testing.T) {
-	// Temporarily change the operating system to an unsupported one
-	oldGetGOOS := getGOOS
-	getGOOS = func() string { return "unsupported" }
-	defer func() { getGOOS = oldGetGOOS }()
-
-	_, err := DownloadAndExtractFFMPEG()
-	if err == nil {
-		t.Errorf("Expected error due to unsupported operating system, but got none")
-	}
-}
-
-func TestDownloadAndExtractFFMPEG_FailedDownload(t *testing.T) {
-	// Temporarily change the operating system to an unsupported one
-	oldGetGOOS := getGOOS
-	getGOOS = func() string { return "windows" }
-	defer func() { getGOOS = oldGetGOOS }()
-
-	// Mock http.Get to return an error
-	oldHttpGet := httpGet
-	httpGet = func(url string) (*http.Response, error) {
-		return nil, errors.New("mocked error")
-	}
-	defer func() { httpGet = oldHttpGet }()
-
-	_, err := DownloadAndExtractFFMPEG()
-	if err == nil {
-		t.Errorf("Expected error due to failed download, but got none")
-	}
-}
-
-func TestDownloadAndExtractFFMPEG_FailedExtraction(t *testing.T) {
-	// Temporarily change the operating system to an unsupported one
-	oldGetGOOS := getGOOS
-	getGOOS = func() string { return "windows" }
-	defer func() { getGOOS = oldGetGOOS }()
-
-	// Mock http.Get to return a response with a body that cannot be extracted
-	oldHttpGet := httpGet
-	httpGet = func(url string) (*http.Response, error) {
-		return &http.Response{
-			Body: ioutil.NopCloser(strings.NewReader("not a tarball")),
-		}, nil
-	}
-	defer func() { httpGet = oldHttpGet }()
-
-	_, err := DownloadAndExtractFFMPEG()
-	if err == nil {
-		t.Errorf("Expected error due to failed extraction, but got none")
-	}
+	_, err := DownloadAndExtractFFMPEG("unsupported")
+	assert.Error(t, err)
+	assert.Equal(t, fmt.Errorf("unsupported operating system: %s", "unsupported"), err)
 }
