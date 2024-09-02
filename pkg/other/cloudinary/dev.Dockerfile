@@ -12,10 +12,6 @@ ENV GOARCH=$GOARCH
 WORKDIR /app
 COPY . /app
 
-#RUN go install github.com/cosmtrek/air@latest
-#RUN apt-get update
-#RUN apt-get install nano -y
-
 RUN go mod download \
 && go mod verify \
 && go mod tidy \

@@ -2,19 +2,23 @@ package handlers
 
 import (
 	"fmt"
-	"github.com/go-chi/chi/v5"
 	"hetic/tech-race/internal/services"
 	"hetic/tech-race/pkg/util"
 	"net/http"
+	"path/filepath"
+	"runtime"
 	"strconv"
+
+	"github.com/go-chi/chi/v5"
 )
 
 type SessionHandler struct {
 	sessionService *services.SessionService
+	uploadService  *services.UploadService
 }
 
-func NewSessionHandler(sessionService *services.SessionService) *SessionHandler {
-	return &SessionHandler{sessionService: sessionService}
+func NewSessionHandler(sessionService *services.SessionService, uploadService *services.UploadService) *SessionHandler {
+	return &SessionHandler{sessionService: sessionService, uploadService: uploadService}
 }
 
 func (h *SessionHandler) GetAll() http.HandlerFunc {
@@ -40,6 +44,13 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			return
 		}
 
+		//currentSessionId, err := h.sessionService.GetCurrentSessionID()
+		//if err != nil {
+		//println("problem getting session id")
+		//}
+
+		//sessionId := currentSessionId.ID
+
 		isActive, err := h.sessionService.IsSessionActive()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
@@ -56,6 +67,34 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+
+		videoservice := services.NewVideoService(runtime.GOOS)
+		recordingData, err := videoservice.StartRecording(h.sessionService)
+		if err != nil {
+			fmt.Println("Error starting recording:", err)
+		}
+
+		var cloudinaryPackageUrl = "http://localhost:8083/upload-video"
+		dirFromCloudinarace := "../../../tmp/video"
+
+		resp, err := services.UploadVideoToCloudinary(cloudinaryPackageUrl, filepath.Join(dirFromCloudinarace, recordingData.VideoName+".mp4"), recordingData.VideoName)
+		if err != nil {
+			fmt.Println("Error uploading video:", err)
+
+		}
+
+		videoPath := resp.Data.Data.URL
+		if videoPath != "" {
+			err := h.uploadService.InsertVideo(videoPath)
+			if err != nil {
+				println("error in database insertion: ", err)
+				http.Error(w, err.Error(), http.StatusInternalServerError)
+			}
+		} else {
+			http.Error(w, "L'url de la vidéo n'a pas été trouvé", http.StatusInternalServerError)
+		}
+
+		// don't display this if StartRecording returned an error
 		w.Write([]byte("Session started\n"))
 	}
 }
@@ -67,6 +106,9 @@ func (h *SessionHandler) Stop() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
+		videoservice := services.NewVideoService(runtime.GOOS)
+		videoservice.IsRecording = false
+
 		w.Write([]byte("Session stopped\n"))
 	}
 }

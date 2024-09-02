@@ -1,4 +1,4 @@
-.env
+../../../.env
 .idea
 
 *.exe
@@ -8,3 +8,5 @@
 *.dylib
 
 go.work
+
+tmp

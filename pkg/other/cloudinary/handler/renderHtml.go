@@ -8,6 +8,7 @@ import (
 
 func DisplayVideoHandler(entity *entity.ContextEntity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		videoURL := r.URL.Query().Get("video-url")
 		tmpl := `
 <!DOCTYPE html>
 <html lang="en">
@@ -53,7 +54,7 @@ document.getElementById("upload_widget").addEventListener("click", function(){
 			Src       string
 			CloudName string
 		}{
-			Src:       "https://res.cloudinary.com/demo/video/upload/f_auto/q_auto/samples/cld-sample-video.mp4",
+			Src:       videoURL,
 			CloudName: entity.CloudName,
 		}
 		t.Execute(w, data)
@@ -62,6 +63,7 @@ document.getElementById("upload_widget").addEventListener("click", function(){
 
 func DisplayImageHandler(entity *entity.ContextEntity) http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
+		imageURL := r.URL.Query().Get("image-url")
 		tmpl := `
 <!DOCTYPE html>
 <html lang="en">
@@ -104,7 +106,7 @@ document.getElementById("upload_widget").addEventListener("click", function(){
 			CloudNameSRC string
 			CloudName    string
 		}{
-			CloudNameSRC: entity.CloudName + "/image/upload/r_max/e_sepia/quickstart_butterfly",
+			CloudNameSRC: entity.CloudName + imageURL,
 			CloudName:    entity.CloudName,
 		}
 

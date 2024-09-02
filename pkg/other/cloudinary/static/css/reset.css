@@ -1,0 +1,44 @@
+html {
+    scroll-behavior: smooth;
+    overflow-x: hidden;
+}
+
+body,
+article,
+h1,
+p,
+img,
+div {
+    margin: 0;
+    padding: 0;
+    /* 100% is equivalent to 16px */
+    font-size: 100%;
+    font: inherit;
+    vertical-align: baseline;
+    box-sizing: border-box;
+    outline: 0;
+    line-height: 1;
+}
+
+a {
+    text-decoration: none;
+}
+
+li {
+    list-style: none;
+}
+
+/* HTML5 display-role reset for older browsers */
+article,
+aside,
+details,
+figcaption,
+figure,
+footer,
+header,
+hgroup,
+menu,
+nav,
+section {
+    display: block;
+}

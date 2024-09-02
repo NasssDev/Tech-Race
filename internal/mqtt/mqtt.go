@@ -19,13 +19,19 @@ type MQTTClient struct {
 }
 
 func NewMQTTClient(db models.DatabaseInterface) *MQTTClient {
-	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.1.103:1883")
+	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.87.103:1883")
 	client := MQTT.NewClient(opts)
 	return &MQTTClient{client: client, db: db}
 }
 
 func (m *MQTTClient) ConnectAndSubscribe(isAutopilot bool) error {
 	m.isAutopilot = isAutopilot
+	_, err := m.db.GetCurrentSessionID()
+	// TODO Why isn't the error being returned
+	if err != nil {
+		//fmt.Println(err)
+		return nil
+	}
 	if token := m.client.Connect(); token.Wait() && token.Error() != nil {
 		return token.Error()
 	}
@@ -51,7 +57,7 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 	case "esp32/track":
 		m.valueTrack, err = strconv.Atoi(string(msg.Payload()))
 		if err != nil {
-			fmt.Println(err)
+			//fmt.Println(err)
 			return
 		}
 		if m.valueTrack < 7 {
