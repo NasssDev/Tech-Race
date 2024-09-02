@@ -74,7 +74,7 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			fmt.Println("Error starting recording:", err)
 		}
 
-		var cloudinaryPackageUrl = "http://localhost:8045/upload-video"
+		var cloudinaryPackageUrl = "http://localhost:8083/upload-video"
 		dirFromCloudinarace := "../../../tmp/video"
 
 		resp, err := services.UploadVideoToCloudinary(cloudinaryPackageUrl, filepath.Join(dirFromCloudinarace, recordingData.VideoName+".mp4"), recordingData.VideoName)
