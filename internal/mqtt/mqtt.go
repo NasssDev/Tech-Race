@@ -83,6 +83,11 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 		}
 
 	}
+	sessionID, err = m.db.GetCurrentSessionID()
+	if err != nil {
+		//fmt.Println(err)
+		return
+	}
 	if m.isAutopilot {
 		//println("autopilot", m.isCollision, m.valueTrack)
 		c, _, err := websocket.DefaultDialer.Dial("ws://192.168.1.10/ws", nil)
@@ -110,12 +115,12 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 					"cmd":  1,
 					"data": [4]int{500, 500, 500, 500},
 				}
-			case 6:
+			case 3:
 				payload = map[string]interface{}{
 					"cmd":  1,
 					"data": [4]int{0, 0, 500, 500},
 				}
-			case 3:
+			case 6:
 				payload = map[string]interface{}{
 					"cmd":  1,
 					"data": [4]int{500, 500, 0, 0},
