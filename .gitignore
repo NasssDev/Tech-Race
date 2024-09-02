@@ -21,6 +21,6 @@ cloudinary/.idea
 
 # Go workspace file
 go.work
-
+pkg/other/python-video/venv
 
 tmp
