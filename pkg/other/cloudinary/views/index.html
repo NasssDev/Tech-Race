@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <!-- displays site properly based on user's device -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <!-- favicon -->
+    <link rel="icon" type="image/png" sizes="32x32" href="../static/images/favicon_io/favicon-32x32.png">
+
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=Lexend+Deca&display=swap"
+          rel="stylesheet">
+
+    <link rel="stylesheet" href="../static/css/variables.css" type="text/css">
+    <link rel="stylesheet" href="../static/css/reset.css" type="text/css">
+    <link rel="stylesheet" href="../static/css/main.css" type="text/css">
+    <link rel="stylesheet" href="../static/css/desktop.css" type="text/css">
+
+    <title>Cloudinarace</title>
+
+</head>
+
+<body>
+
+<main class="main-page">
+
+    <div class="title-container">
+        <h1 class="title-color title-font title-size title-margin">Cloudinarace</h1>
+        <p class="para-color para-font para-size">L'API de Tech Race pour l'export et stockage des vidéos via Cloudinary</p>
+    </div>
+
+    <div class="cards-container card-container-form">
+        <article class="card card-color-1 card-1">
+            <div class="icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#FFF" stroke-width="2"
+                     stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-cloud">
+                    <path d="M17.5 19H9a7 7 0 1 1 6.71-9h1.79a4.5 4.5 0 1 1 0 9Z"/></svg>
+            </div>
+            <h1 class="title-color title-font title-size title-margin">Etape 1 - s'inscrire</h1>
+            <p class="para-color para-font para-size para-margin">Avec Cloudinarace, stocke les vidéos prisent par ta voiture sur Cloudinary !
+                Si tu es là c'est que tu a un compte Cloudinary renseigné dans les variables d'environnements. Si ce n'est pas ton propre compte : configure la cloudinary_url et l'id dans le <code class="code">.env</code> de <a class="link" href="https://github.com/NasssDev/Tech-Race/tree/main/pkg/other/cloudinary">ce package</a> dans <i>Tech Race</i>.</p>
+            <a type="button" href="https://cloudinary.com/users/login" class="btn-text-color-3 btn-size btn-font btn-form">Mon compte Cloudinary</a>
+        </article>
+
+        <article class="card card-color-2 card-2">
+            <div class="icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-video">
+                    <path d="m16 13 5.223 3.482a.5.5 0 0 0 .777-.416V7.87a.5.5 0 0 0-.752-.432L16 10.5"/><rect x="2" y="6" width="14" height="12" rx="2"/></svg>
+            </div>
+            <h1 class="title-color title-font title-size title-margin">Etape 2 - Créer</h1>
+            <p class="para-color para-font para-size">Assure-toi que dans Tech Race, la vidéo ait bien été créé : ton application te dira si la vidéo est prête.</p>
+            <p class="para-color para-font para-size">Si tu as une vidéo: crée ou utilise un nouveau service sur Tech Race pour l'export de vidéos sur un cloud. Utilise alors ce package pour les exports sur cloudinary.</p>
+            <p class="para-color para-font para-size">Regarde l'étape 3 pour savoir quoi passer dans les query strings pour exporter ta vidéo sur cloudinary.</p>
+        </article>
+
+        <article class="card card-color-3 card-3">
+            <div class="icon-container">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="lucide lucide-library-big"><rect width="8" height="18" x="3" y="3" rx="1"/><path d="M7 3v18"/>
+                    <path d="M20.4 18.9c.2.5-.1 1.1-.6 1.3l-1.9.7c-.5.2-1.1-.1-1.3-.6L11.1 5.1c-.2-.5.1-1.1.6-1.3l1.9-.7c.5-.2 1.1.1 1.3.6Z"/></svg>
+            </div>
+            <h1 class="title-color title-font title-size title-margin">Etape 3 - Stocker</h1>
+            <p class="para-color para-font para-size">Tu as besoin de l'url de la vidéo en mp4 et d'un id unique pour chaque vidéo que tu génère.</p>
+            <p class="para-color para-font para-size">En appelant <code class="code">/upload-videos?url=your-video-url.mp4&id=your-video-id</code> depuis Tech Race, tu peux déclencher l'export sur Cloudinary des vidéos prises par ta voiture.</p>
+            <p class="para-color para-font para-size">Teste avec cette vidéo fake&nbsp;:<br>
+                <code class="code">http://localhost:8090/upload-video?url=https://res.cloudinary.com/demo/video/upload/wave.mp4&id=quickstart_wave</code><br><br> Vas voir le résultat sur Cloudinary !</p>
+
+        </article>
+
+    </div>
+
+</main>
+</body>
+
+</html>

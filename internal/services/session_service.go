@@ -7,13 +7,24 @@ import (
 	"time"
 )
 
+type SessionServiceID struct {
+	ID int
+}
+
 type SessionService struct {
-	db   models.DatabaseInterface
-	info models.SessionInfo
+	db models.DatabaseInterface
 }
 
 func NewSessionService(db models.DatabaseInterface) *SessionService {
 	return &SessionService{db: db}
+}
+
+func (s *SessionService) GetCurrentSessionID() (SessionServiceID, error) {
+	sessionID, err := s.db.GetCurrentSessionID()
+	if err != nil {
+		return SessionServiceID{}, err
+	}
+	return SessionServiceID{ID: sessionID}, nil
 }
 
 func (s *SessionService) GetAll() ([]models.Session, error) {
@@ -31,7 +42,7 @@ func (s *SessionService) Start(isAutopilot bool) error {
 		return err
 	}
 	mqttClient := mqtt.NewMQTTClient(s.db)
-	_ = mqttClient.ConnectAndSubscribe()
+	_ = mqttClient.ConnectAndSubscribe(isAutopilot)
 	fmt.Println("Session started")
 	return nil
 }
