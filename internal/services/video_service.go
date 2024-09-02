@@ -67,6 +67,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	}
 
 	// Chemin du fichier temporaire : relatif à la racine du package cloudinary
+	// TODO : Understand why "tmp/video" is relative to the content root (path)
 	dir := "tmp/video"
 
 	err = createVideoDir(dir)
@@ -89,6 +90,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	}
 
 	// display error message depends on OS
+	// TODO : Remove this because it's not necessary and it is deprecated + find a unique message for all OS
 	if err := cmd.Start(); err != nil {
 		if v.CurrentOS == "windows" {
 			fmt.Println("Error starting ffmpeg.exe:", err)
@@ -104,6 +106,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 		}
 	}
 
+	//TODO : Decrypt and understand all the code below
 	go func() {
 		scanner := bufio.NewScanner(stderr)
 		for scanner.Scan() {
@@ -171,6 +174,7 @@ func (v *VideoService) StartRecording(sessionService *SessionService) {
 	//err = OS.Remove(filepath.Join(dir, videoName+".mp4"))
 }
 
+// TODO : delete this i dont think it is still usefull
 func setPathCheckingOS(currentOS string) string {
 	os := currentOS
 	fmmpegDir := "bin/ffmpeg"

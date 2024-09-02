@@ -22,6 +22,7 @@ func NewMQTTClient(db models.DatabaseInterface) *MQTTClient {
 
 func (m *MQTTClient) ConnectAndSubscribe() error {
 	_, err := m.db.GetCurrentSessionID()
+	// TODO Why isn't the error being returned
 	if err != nil {
 		//fmt.Println(err)
 		return nil

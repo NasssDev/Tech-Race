@@ -60,8 +60,10 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 		}
 
 		videoservice := services.NewVideoService(runtime.GOOS)
+		// TODO : StartRecording should return an error to ensure that the session started seamlessly
 		videoservice.StartRecording(h.sessionService)
 
+		// don't display this if StartRecording returned an error
 		w.Write([]byte("Session started\n"))
 	}
 }
