@@ -20,14 +20,14 @@ type ContextEntity struct {
 func NewContextEntity() *ContextEntity {
 	errdot := godotenv.Load()
 	if errdot != nil {
-		log.Fatal("Error loading .env file:", errdot)
+		log.Fatal("Vous avez besoin d'un fichier .env et d'y mettre l'accés cloudinary", errdot)
 	}
 
 	cloudName := os.Getenv("CLOUDINARY_ID")
 
 	cld, err := cloudinary.New()
 	if err != nil {
-		log.Fatalf("Failed to initialize Cloudinary, %v", err)
+		log.Fatalf("Vous avez besoin de credentials cloudinary valides, %v", err)
 	}
 	cld.Config.URL.Secure = true
 	ctx := context.Background()
