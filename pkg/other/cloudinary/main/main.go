@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/cloudinarace/config"
 	"github.com/cloudinarace/entity"
 	"github.com/cloudinarace/handler"
 	"github.com/gin-gonic/gin"
@@ -14,7 +15,7 @@ import (
 )
 
 func main() {
-	port := flag.String("port", "8090", "Port to run the server on")
+	port := flag.String("port", config.GetEnv("PORT", "9080"), "Port to run the server on")
 	flag.Parse()
 
 	// Set the parsed port in the environment variable
