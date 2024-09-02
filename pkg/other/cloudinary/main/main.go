@@ -3,6 +3,7 @@ package main
 import (
 	"flag"
 	"fmt"
+	"github.com/cloudinarace/config"
 	"github.com/cloudinarace/entity"
 	"github.com/cloudinarace/handler"
 	"github.com/gin-gonic/gin"
@@ -11,30 +12,10 @@ import (
 	"mime"
 	"net/http"
 	"os"
-	"text/template"
 )
 
-func serveHome(w http.ResponseWriter, r *http.Request) {
-	log.Println(r.URL)
-	if r.URL.Path != "/" {
-		http.Error(w, "Not found", http.StatusNotFound)
-		return
-	}
-	if r.Method != http.MethodGet {
-		http.Error(w, "Method not allowed", http.StatusMethodNotAllowed)
-		return
-	}
-
-	templ := template.Must(template.ParseFiles("views/index.html"))
-	err := templ.Execute(w, nil)
-	if err != nil {
-		println(err)
-		return
-	}
-}
-
 func main() {
-	port := flag.String("port", "8090", "Port to run the server on")
+	port := flag.String("port", config.GetEnv("PORT", "9080"), "Port to run the server on")
 	flag.Parse()
 
 	// Set the parsed port in the environment variable

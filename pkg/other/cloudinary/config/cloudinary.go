@@ -38,3 +38,10 @@ func EnvCloudUploadFolder() string {
 	}
 	return os.Getenv("CLOUDINARY_UPLOAD_FOLDER")
 }
+
+func GetEnv(key, defaultValue string) string {
+	if value, exists := os.LookupEnv(key); exists {
+		return value
+	}
+	return defaultValue
+}

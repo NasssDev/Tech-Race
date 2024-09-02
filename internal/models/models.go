@@ -67,6 +67,7 @@ type DatabaseInterface interface {
 	InsertTrackData(data LineTracking) error
 	InsertSonarData(data Collision) error
 	InsertVideoData(data Video) error
+	GetLastSessionID() (int, error)
 	GetCurrentSessionID() (int, error)
 	GetCollisionsBySessionID(sessionID int) ([]Collision, error)
 	GetTracksBySessionID(sessionID int) ([]LineTracking, error)

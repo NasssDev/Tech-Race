@@ -6,7 +6,7 @@ DOCKER_EXEC=$(CURRENT_USER) docker exec -it $(DOCKER_NAME) sh
 PORT?=8083
 RUN_CLOUDINARY=cd pkg/other/cloudinary && go run main/main.go --port=$(PORT)
 GO_RUN="go run main/main.go --port=$(PORT)"
-AIR=cd pkg/other/cloudinary && air
+AIR=cd pkg/other/cloudinary && PORT=$(PORT) air
 RUN_DOCKER=cd pkg/other/cloudinary && docker compose up
 RUN_TECHRACEAPI=go run cmd/api/main.go
 
