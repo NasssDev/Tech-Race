@@ -40,14 +40,15 @@ type Video struct {
 
 // SessionInfo struct for json api
 type SessionInfo struct {
-	ID          int             `json:"id"`
-	StartDate   string          `json:"start_time"`
-	EndDate     string          `json:"end_time"`
-	Duration    string          `json:"duration"`
-	IsAutopilot bool            `json:"is_autopilot"`
-	Videos      VideoInfo       `json:"videos"`
-	Collisions  []CollisionInfo `json:"collisions"`
-	Tracks      []TrackInfo     `json:"tracks"`
+	ID                int             `json:"id"`
+	StartDate         string          `json:"start_time"`
+	EndDate           string          `json:"end_time"`
+	Duration          string          `json:"duration"`
+	DurationInSeconds int64           `json:"duration_in_seconds"`
+	IsAutopilot       bool            `json:"is_autopilot"`
+	Videos            VideoInfo       `json:"videos"`
+	Collisions        []CollisionInfo `json:"collisions"`
+	Tracks            []TrackInfo     `json:"tracks"`
 }
 
 type CollisionInfo struct {

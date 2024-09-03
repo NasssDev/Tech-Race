@@ -71,6 +71,7 @@ func (s *SessionService) GetAllSessionInfo() ([]models.SessionInfo, error) {
 	var sessionInfos []models.SessionInfo
 	for _, session := range sessions {
 		startDate := session.StartDate.Format("02/01/2006 - 15:04:05")
+		durationInSeconds := int64(session.EndDate.Sub(session.StartDate).Seconds())
 		endDate := session.EndDate.Format("02/01/2006 - 15:04:05")
 		duration := session.EndDate.Sub(session.StartDate)
 		hours := int(duration.Hours())
@@ -155,14 +156,15 @@ func (s *SessionService) GetAllSessionInfo() ([]models.SessionInfo, error) {
 		}
 
 		sessionInfo := models.SessionInfo{
-			ID:          session.ID,
-			StartDate:   startDate,
-			EndDate:     endDate,
-			Duration:    durationStr,
-			IsAutopilot: session.IsAutopilot,
-			Videos:      videoInfo,
-			Collisions:  []models.CollisionInfo{collisionInfo},
-			Tracks:      []models.TrackInfo{trackInfo},
+			ID:                session.ID,
+			StartDate:         startDate,
+			EndDate:           endDate,
+			DurationInSeconds: durationInSeconds,
+			Duration:          durationStr,
+			IsAutopilot:       session.IsAutopilot,
+			Videos:            videoInfo,
+			Collisions:        []models.CollisionInfo{collisionInfo},
+			Tracks:            []models.TrackInfo{trackInfo},
 		}
 
 		sessionInfos = append(sessionInfos, sessionInfo)
