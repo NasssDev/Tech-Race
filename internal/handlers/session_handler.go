@@ -2,14 +2,13 @@ package handlers
 
 import (
 	"fmt"
+	"github.com/go-chi/chi/v5"
 	"hetic/tech-race/internal/services"
 	"hetic/tech-race/pkg/util"
 	"net/http"
 	"path/filepath"
 	"runtime"
 	"strconv"
-
-	"github.com/go-chi/chi/v5"
 )
 
 type SessionHandler struct {
@@ -43,13 +42,6 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
-
-		//currentSessionId, err := h.sessionService.GetCurrentSessionID()
-		//if err != nil {
-		//println("problem getting session id")
-		//}
-
-		//sessionId := currentSessionId.ID
 
 		isActive, err := h.sessionService.IsSessionActive()
 		if err != nil {

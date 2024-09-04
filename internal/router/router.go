@@ -1,12 +1,11 @@
 package router
 
 import (
+	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 	"hetic/tech-race/internal/handlers"
 	"hetic/tech-race/internal/services"
 	"net/http"
-
-	"github.com/go-chi/chi/v5"
-	"github.com/go-chi/chi/v5/middleware"
 )
 
 func SetupRouter(sessionService *services.SessionService, uploadService *services.UploadService) *chi.Mux {
@@ -16,7 +15,6 @@ func SetupRouter(sessionService *services.SessionService, uploadService *service
 	r.Use(middleware.Recoverer)
 
 	sessionHandler := handlers.NewSessionHandler(sessionService, uploadService)
-	uploadHandler := handlers.NewVideoHandler(uploadService)
 
 	fileServer := http.FileServer(http.Dir("static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
@@ -28,7 +26,6 @@ func SetupRouter(sessionService *services.SessionService, uploadService *service
 	r.Get("/sessions/start/{is_autopilot}", sessionHandler.Start())
 	r.Get("/sessions/stop", sessionHandler.Stop())
 	r.Get("/sessions/info", sessionHandler.GetAllSessionInfo())
-	r.Get("/export-video", uploadHandler.ExportVideoToCloudinary())
 
 	return r
 }
