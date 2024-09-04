@@ -1,6 +1,7 @@
 # HETIC Projet Final: “ Tech-Race “
 
 <img src="https://img.shields.io/badge/golang-%5E1.22-blue">
+<img src="https://img.shields.io/badge/python-3.10-yellow">
 
 <div align="center">
    <img src="https://github.com/NasssDev/Tech-Race/assets/167258734/8022059e-d34b-422f-9010-bf8d8fdd7132" alt="image" width="300" height="200"/>
