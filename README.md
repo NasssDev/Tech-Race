@@ -19,9 +19,16 @@ Ce projet se compose de plusieurs repositories toutes hébergés sur Github :
 
 ## Equipe Backend (ce repository) : 
 
-- [Amaury](https://github.com/ExploryKod) 
-- [Nassim](https://github.com/NasssDev)
-- [Justin](https://github.com/Jykiin)
+- [Amaury FRANSSEN](https://github.com/ExploryKod) 
+- [Nassim AISSAOUI](https://github.com/NasssDev)
+- [Justin LELUC](https://github.com/Jykiin)
+
+## Equipe frontend : 
+- [Reewaz Maskey](https://github.com/reewaz001)
+- [Alexandre VISAGE](https://github.com/Aleex470)
+- [Khalifa boubacar DIONE](https://github.com/khalifadione)
+- [Achraf CHARDOUDI](https://github.com/Achkey)
+
 
 ## Objectif
 
@@ -33,7 +40,56 @@ L'objectif principal est de créer une interface intuitive pour les pilotes afin
 - Visualisation en temps réel des données de télémétrie (vitesse, orientation, etc.).
 - Mode suiveur de ligne autonome pour les courses sans intervention humaine.
 
-## ⚙️ Configuration locale du projet
+## ⚙️ Configuration locale de l'API Backend (ce repository)
+
+#### Base générale
+1. Cloner ce repository 
+2. Avoir installé Golang sur sa machine locale [Installation de Go](https://go.dev/doc/install)
+3. Avoir docker sur sa machine locale et avoir installé l'image docker de mosquitto : [Cliquez ici](https://github.com/ExploryKod/mosquitto-docker) 
+4. Avoir postgresSQL (optionnel car on peux passer via docker)
+5. Installer MakeFile si vous êtes sur une platforme qui ne l'a pas nativement 
+
+#### Pour faire fonctionner le service de vidéos
+4. S'inscrire gratuitement sur Cloudinary : [S'inscrire sur Cloudinary](https://cloudinary.com/)
+5. Récupérer son cloudinary ID et le cloudinary URL depuis son compte
+6. Configurer le service cloudinarace (service cloudinary de Tech Race) : 
+**Depuis la racine, se rendre dans `pkg/other/cloudinary/.env` :** 
+```
+CLOUDINARY_ID=mon-id-cloudinary-présente-sur-mon-compte
+CLOUDINARY_URL=mon-url-cloudinary-présente-sur-mon-compte
+GOOS=linux (ou d'autres os si vous n'avez pas linux) > doc de Golang
+GOARCH=amd64 (vérifier aussi que c'est bien la bonne architecture pour vous aussi) > doc de Golang
+```
+
+#### 
+4. Configurer le `.env` du projet à la racine : 
+``` 
+PORT_VIDEO=7000
+IP=127.0.0.1
+BOUNDARY=--123456789000000000000987654321
+```
+
+5. Aller à la racine du projet et lancer ces commandes : 
+Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 8889 (adminer) et 5432 (postgres) sont libres.
+- Lancer docker : `docker compose up -d`
+- Lancer le projet : `go run cmd/api/main.go`
+- Lancer cloudinarace pour la gestion vidéo (si besoin): `make cloudinarace`
+Si vous n'avez pas Make, lancez cloudinarace via : `cd pkg/other/cloudinary && go run main/main.go --port=8083`
+
+6. Configurer la base de donnée: 
+- Se rendre sur [adminer](http://localhost:8089) ou [pgAdmin](http://localhost:8888)
+- Regarder les credentials présents dans le fichier `docker-compose.yaml` 
+- Choisir PostgresSQL et utiliser ces credentials : 
+
+```
+Bdd : tech_race  
+User : root
+Sur PgAdmin, default email : tech@race.com
+Mot de passe : password
+serveur : db 
+```
+
+- Import le dump de la base de donnée
 
 ## Matériel et Logiciel Utilisés
 
@@ -56,16 +112,6 @@ L'objectif principal est de créer une interface intuitive pour les pilotes afin
 2. Assurez-vous d'avoir les outils de développement nécessaires installés (par exemple, Node.js, npm).
 3. Installez les dépendances du projet en exécutant `npm install`.
 4. Démarrez l'application en exécutant `npm start`.
-
-## Membres du projet
-
-1. Justin LELUC (@)
-2. Reewaz MASKEY (@)
-3. Achraf CHARDOUDI (@)
-4. Amaury FRANSSEN (@)
-5. Alexandre VISAGE (@)
-6. Nassim AISSAOUI (@)
-7. Khalifa boubacar DIONE (@)
 
 ## Contribuer
 
