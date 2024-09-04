@@ -59,20 +59,18 @@ func (v *VideoService) StartRecording(sessionService *SessionService) (*Recordin
 
 	conn, err := net.Dial("tcp", fmt.Sprintf("%s:%d", serverIP, port))
 	if err != nil {
-		fmt.Println("Error connecting:", err)
-		return nil, fmt.Errorf("il y a une erreur dans la requête  de la vidéo au serveur mqtt: %w", err)
+		return nil, fmt.Errorf("error connecting: %w", err)
 	}
 	defer conn.Close()
 
 	// use the good binary depends on OS
 	ffmpegPath, err := DownloadAndExtractFFMPEG(v.CurrentOS)
 	if err != nil {
-		fmt.Println("Error during download and extract binary :", err)
-		return nil, fmt.Errorf("Error during download and extract binary: %w", err)
+		return nil, fmt.Errorf("error during download and extract binary: %w", err)
 	}
 
 	// Chemin du fichier temporaire : relatif à la racine du package cloudinary
-	// TODO : Understand why "tmp/video" is relative to the content root (path)
+	// TODO : Understand why "tmp/video" is relative to the content root (Tech-Race/)
 	dir := "tmp/video"
 
 	err = createVideoDir(dir)
@@ -302,6 +300,7 @@ func DownloadAndExtractFFMPEG(currentOS string) (string, error) {
 		return "", fmt.Errorf("unsupported operating system: %s", currentOS)
 	}
 
+	// download ffmpeg file from the url
 	resp, err := http.Get(url)
 	if err != nil {
 		return "", err
@@ -319,80 +318,14 @@ func DownloadAndExtractFFMPEG(currentOS string) (string, error) {
 	}
 
 	if currentOS == "darwin" {
-		// Handle ZIP file for macOS
-		zipFile, err := OS.Create(filepath.Join(ffmpegDir, "ffmpeg.zip"))
-		if err != nil {
-			return "", err
-		}
-		defer zipFile.Close()
-
-		_, err = io.Copy(zipFile, resp.Body)
-		if err != nil {
-			return "", err
-		}
-
-		// Unzip the file
-		err = unzip(filepath.Join(ffmpegDir, "ffmpeg.zip"), ffmpegDir)
-		if err != nil {
-			return "", err
-		}
-
-		return filepath.Join(ffmpegDir, "ffmpeg"), nil
-
-		//ffmpegDir, _ = handleZipFile(ffmpegDir, resp)
-		//fmt.Println("FFMPEG DIR : ", ffmpegDir)
-		//return ffmpegDir, nil
+		//Handle .zip files for MacOS
+		ffmpegDir, err = handleZipFile(ffmpegDir, resp)
+		fmt.Println("FFMPEG DIR (after handleZipFile) : ", ffmpegDir)
+		return ffmpegDir, nil
 	}
 
 	//Handle .tar.xz files for Windows and Linux
-	xzr, err := xz.NewReader(resp.Body, 0)
-	if err != nil {
-		return "", err
-	}
-
-	tr := tar.NewReader(xzr)
-	if err != nil {
-		return "", err
-	}
-
-	for {
-		header, err := tr.Next()
-
-		if err == io.EOF {
-			break
-		}
-
-		if err != nil {
-			return "", err
-		}
-
-		target := filepath.Join(ffmpegDir, header.Name)
-		fmt.Println("Extracting TARGET :", target)
-
-		switch header.Typeflag {
-		case tar.TypeDir:
-			if _, err := OS.Stat(target); OS.IsNotExist(err) {
-				if err := OS.MkdirAll(target, 0755); err != nil {
-					return "", err
-				}
-			}
-		case tar.TypeReg:
-			f, err := OS.OpenFile(target, OS.O_CREATE|OS.O_RDWR, OS.FileMode(header.Mode))
-			if err != nil {
-				return "", err
-			}
-
-			if _, err := io.Copy(f, tr); err != nil {
-				return "", err
-			}
-
-			f.Close()
-		}
-		parts := strings.Split(target, "/")
-		if len(parts) > 0 && parts[len(parts)-1] == "ffmpeg" {
-			ffmpegDir = target
-		}
-	}
+	ffmpegDir, err = handleTarXZFile(ffmpegDir, resp)
 
 	return filepath.Join(ffmpegDir), nil
 }
@@ -404,6 +337,7 @@ func unzip(src, dest string) error {
 	}
 	defer r.Close()
 
+	// r.File is a slice of *File
 	for _, f := range r.File {
 		fpath := filepath.Join(dest, f.Name)
 
@@ -430,12 +364,17 @@ func unzip(src, dest string) error {
 
 		_, err = io.Copy(outFile, rc)
 
-		outFile.Close()
 		rc.Close()
+		outFile.Close()
 
 		if err != nil {
 			return err
 		}
+
+	}
+	// delete zip file since we dont need it anymore
+	if err = OS.Remove(filepath.Join(src)); err != nil {
+		return err
 	}
 	return nil
 }
@@ -447,17 +386,63 @@ func handleZipFile(ffmpegDir string, resp *http.Response) (string, error) {
 	}
 	defer zipFile.Close()
 
-	_, err = io.Copy(zipFile, resp.Body)
-	if err != nil {
-		fmt.Println("Error file ICIII:", err)
+	if _, err = io.Copy(zipFile, resp.Body); err != nil {
 		return "", err
 	}
-
+	// Unzip the file
 	err = unzip(filepath.Join(ffmpegDir, "ffmpeg.zip"), ffmpegDir)
 	if err != nil {
-		fmt.Println("Error unzipping file ICIII:", err)
 		return "", err
 	}
 
 	return filepath.Join(ffmpegDir, "ffmpeg"), nil
+}
+
+func handleTarXZFile(ffmpegDir string, resp *http.Response) (string, error) {
+	xzr, err := xz.NewReader(resp.Body, 0)
+	if err != nil {
+		return "", err
+	}
+
+	tr := tar.NewReader(xzr)
+
+	for {
+		header, err := tr.Next()
+
+		if err == io.EOF {
+			break
+		}
+
+		if err != nil {
+			return "", err
+		}
+
+		target := filepath.Join(ffmpegDir, header.Name)
+		fmt.Println("Extracting TARGET :", target)
+
+		switch header.Typeflag {
+		case tar.TypeDir:
+			if _, err := OS.Stat(target); OS.IsNotExist(err) {
+				if err := OS.MkdirAll(target, 0755); err != nil {
+					return "", err
+				}
+			}
+		case tar.TypeReg:
+			file, err := OS.OpenFile(target, OS.O_CREATE|OS.O_RDWR, OS.FileMode(header.Mode))
+			if err != nil {
+				return "", err
+			}
+
+			if _, err := io.Copy(file, tr); err != nil {
+				return "", err
+			}
+
+			file.Close()
+		}
+		parts := strings.Split(target, "/")
+		if len(parts) > 0 && parts[len(parts)-1] == "ffmpeg" {
+			ffmpegDir = target
+		}
+	}
+	return ffmpegDir, nil
 }
