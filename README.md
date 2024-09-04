@@ -50,11 +50,12 @@ L'objectif principal est de créer une interface intuitive pour les pilotes afin
 3. Avoir docker sur sa machine locale et avoir installé l'image docker de mosquitto : [Cliquez ici](https://github.com/ExploryKod/mosquitto-docker) 
 4. Avoir postgresSQL (optionnel car on peux passer via docker)
 5. Installer MakeFile si vous êtes sur une platforme qui ne l'a pas nativement 
+6. Avoir configurer votre véhicule freenov avec un esp32 ayant le programme avec les bons IP liés à vos réseaux dessus [voir la base de code ici](https://github.com/ExploryKod/freenove_esp32_wrover) 
 
 #### 🎥 Pour faire fonctionner le service de vidéos
-4. S'inscrire gratuitement sur Cloudinary : [S'inscrire sur Cloudinary](https://cloudinary.com/)
-5. Récupérer son cloudinary ID et le cloudinary URL depuis son compte
-6. Configurer le service cloudinarace (service cloudinary de Tech Race) : 
+1. S'inscrire gratuitement sur Cloudinary : [S'inscrire sur Cloudinary](https://cloudinary.com/)
+2. Récupérer son cloudinary ID et le cloudinary URL depuis son compte
+3. Configurer le service cloudinarace (service cloudinary de Tech Race) : 
 **Depuis la racine, se rendre dans `pkg/other/cloudinary/.env` :** 
 ```
 CLOUDINARY_ID=mon-id-cloudinary-présente-sur-mon-compte
@@ -63,15 +64,15 @@ GOOS=linux (ou d'autres os si vous n'avez pas linux) > doc de Golang
 GOARCH=amd64 (vérifier aussi que c'est bien la bonne architecture pour vous aussi) > doc de Golang
 ```
 
-#### 📍Configuration des variables d'environnement
-4. Configurer le `.env` du projet à la racine : 
+#### 📍Configurations du corps de l'API 
+1. Configurer le `.env` du projet à la racine : 
 ``` 
 PORT_VIDEO=7000
 IP=127.0.0.1
 BOUNDARY=--123456789000000000000987654321
 ```
 
-5. 🛵 Aller à la racine du projet et lancer ces commandes : 
+2. 🛵 Aller à la racine du projet et lancer ces commandes : 
 Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 8889 (adminer) et 5432 (postgres) sont libres.
 - Lancer docker : `docker compose up -d`
 - Installer les dépendances : `go mod download` et `go mod tidy`
@@ -79,7 +80,7 @@ Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 
 - Lancer cloudinarace pour la gestion vidéo (si besoin): `make cloudinarace`
 Si vous n'avez pas Make, lancez cloudinarace via : `cd pkg/other/cloudinary && go run main/main.go --port=8083`
 
-6. 📊 Configurer la base de donnée: 
+3. 📊 Configurer la base de donnée: 
 - Se rendre sur [adminer](http://localhost:8089) ou [pgAdmin](http://localhost:8888)
 - Regarder les credentials présents dans le fichier `docker-compose.yaml` 
 - Choisir PostgresSQL et utiliser ces credentials : 
@@ -92,7 +93,7 @@ Mot de passe : password
 serveur : db 
 ```
 
-- Import le dump de la base de donnée
+- Import le dump de la base de donnée présent sur `dump/tech_race_bdd.sql`
 
 ## 🧰 Matériel et Logiciel du véhicule lié à cet API
 
