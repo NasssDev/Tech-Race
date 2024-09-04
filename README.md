@@ -50,7 +50,8 @@ L'objectif principal est de créer une interface intuitive pour les pilotes afin
 3. Avoir docker sur sa machine locale et avoir installé l'image docker de mosquitto : [Cliquez ici](https://github.com/ExploryKod/mosquitto-docker) 
 4. Avoir postgresSQL (optionnel car on peux passer via docker)
 5. Installer MakeFile si vous êtes sur une platforme qui ne l'a pas nativement 
-6. Avoir configurer votre véhicule freenov avec un esp32 ayant le programme avec les bons IP liés à vos réseaux dessus [voir la base de code ici](https://github.com/ExploryKod/freenove_esp32_wrover) 
+6. Avoir configurer votre véhicule freenov avec un esp32 ayant le programme avec les bons IP liés à vos réseaux dessus <br> 
+[voir la base de code ici](https://github.com/ExploryKod/freenove_esp32_wrover) 
 
 #### 🎥 Pour faire fonctionner le service de vidéos
 1. S'inscrire gratuitement sur Cloudinary : [S'inscrire sur Cloudinary](https://cloudinary.com/)
