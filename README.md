@@ -32,11 +32,11 @@ Ce projet se compose de plusieurs repositories toutes hébergés sur Github :
 - [Achraf CHARDOUDI](https://github.com/Achkey)
 
 
-## Objectif
+## 🎯 Objectif
 
 L'objectif principal est de créer une interface intuitive pour les pilotes afin de contrôler le véhicule et de visualiser ses performances. Deux niveaux de courses sont organisés : l'un où les pilotes contrôlent directement le véhicule depuis l'application mobile, et l'autre où le véhicule doit naviguer de manière autonome en suivant une ligne au sol.
 
-## Fonctionnalités Principales
+## 💻 Fonctionnalités Principales
 
 - Contrôle à distance du véhicule via l'application mobile.
 - Visualisation en temps réel des données de télémétrie (vitesse, orientation, etc.).
@@ -44,14 +44,14 @@ L'objectif principal est de créer une interface intuitive pour les pilotes afin
 
 ## ⚙️ Configuration locale de l'API Backend (ce repository)
 
-#### Base générale
+#### 🧮 Base générale
 1. Cloner ce repository 
 2. Avoir installé Golang sur sa machine locale [Installation de Go](https://go.dev/doc/install)
 3. Avoir docker sur sa machine locale et avoir installé l'image docker de mosquitto : [Cliquez ici](https://github.com/ExploryKod/mosquitto-docker) 
 4. Avoir postgresSQL (optionnel car on peux passer via docker)
 5. Installer MakeFile si vous êtes sur une platforme qui ne l'a pas nativement 
 
-#### Pour faire fonctionner le service de vidéos
+#### 🎥 Pour faire fonctionner le service de vidéos
 4. S'inscrire gratuitement sur Cloudinary : [S'inscrire sur Cloudinary](https://cloudinary.com/)
 5. Récupérer son cloudinary ID et le cloudinary URL depuis son compte
 6. Configurer le service cloudinarace (service cloudinary de Tech Race) : 
@@ -63,7 +63,7 @@ GOOS=linux (ou d'autres os si vous n'avez pas linux) > doc de Golang
 GOARCH=amd64 (vérifier aussi que c'est bien la bonne architecture pour vous aussi) > doc de Golang
 ```
 
-#### 
+#### 📍Configuration des variables d'environnement
 4. Configurer le `.env` du projet à la racine : 
 ``` 
 PORT_VIDEO=7000
@@ -71,7 +71,7 @@ IP=127.0.0.1
 BOUNDARY=--123456789000000000000987654321
 ```
 
-5. Aller à la racine du projet et lancer ces commandes : 
+5. 🛵 Aller à la racine du projet et lancer ces commandes : 
 Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 8889 (adminer) et 5432 (postgres) sont libres.
 - Lancer docker : `docker compose up -d`
 - Installer les dépendances : `go mod download` et `go mod tidy`
@@ -79,7 +79,7 @@ Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 
 - Lancer cloudinarace pour la gestion vidéo (si besoin): `make cloudinarace`
 Si vous n'avez pas Make, lancez cloudinarace via : `cd pkg/other/cloudinary && go run main/main.go --port=8083`
 
-6. Configurer la base de donnée: 
+6. 📊 Configurer la base de donnée: 
 - Se rendre sur [adminer](http://localhost:8089) ou [pgAdmin](http://localhost:8888)
 - Regarder les credentials présents dans le fichier `docker-compose.yaml` 
 - Choisir PostgresSQL et utiliser ces credentials : 
@@ -94,9 +94,9 @@ serveur : db
 
 - Import le dump de la base de donnée
 
-## Matériel et Logiciel Utilisés
+## 🧰 Matériel et Logiciel du véhicule lié à cet API
 
-### Matériel
+### Matériel et capteurs présent sur le véhicule
 - Architecture ESP32
 - 4 roues motrices pilotées indépendamment
 - Connexion sans fil wifi/bluetooth
@@ -104,17 +104,11 @@ serveur : db
 - Capteur de suivi de ligne
 - Caméra embarquée
 
-### Logiciel
+### Logiciel 
+Voir le repository : [cliquez ici](https://github.com/ExploryKod/freenove_esp32_wrover)
 - APIs de contrôle pour les roues et les capteurs
 - Données de télémétrie fournies par les capteurs
 - Communication en temps réel entre l'application mobile et le véhicule
-
-## Instructions d'Installation
-
-1. Clonez le dépôt GitHub vers votre machine locale.
-2. Assurez-vous d'avoir les outils de développement nécessaires installés (par exemple, Node.js, npm).
-3. Installez les dépendances du projet en exécutant `npm install`.
-4. Démarrez l'application en exécutant `npm start`.
 
 ## Contribuer
 
