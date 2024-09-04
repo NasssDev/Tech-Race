@@ -1,12 +1,27 @@
 
-# HETC Web: “ Tech-Race “
+# HETIC Projet Final: “ Tech-Race “
 
-![image](https://github.com/NasssDev/Tech-Race/assets/167258734/8022059e-d34b-422f-9010-bf8d8fdd7132)
-
+<div align="center">
+   <img src="https://github.com/NasssDev/Tech-Race/assets/167258734/8022059e-d34b-422f-9010-bf8d8fdd7132" alt="image" width="300" height="200"/>
+</div>
 
 ## Description du Projet
 
-Le projet HETC Web: Tech Race vise à développer une application mobile permettant de contrôler un véhicule à distance via un réseau sans fil. L'application offre aux utilisateurs la possibilité de piloter le véhicule, d'accéder aux données de télémétrie en temps réel et de participer à des courses autonomes.
+Le projet final HETIC, "Tech Race", vise à développer une application mobile permettant de contrôler un véhicule à distance via un réseau sans fil. L'application offre aux utilisateurs la possibilité de piloter le véhicule, d'accéder aux données de télémétrie en temps réel et de participer à des courses autonomes.
+
+Ce projet se compose de plusieurs repositories toutes hébergés sur Github : 
+- [API Tech Race](https://github.com/NasssDev/Tech-Race)
+- [App Mobile](https://github.com/Hetic-Team/tech_race_8_2024)
+- [Site web de partage des vidéos](https://site-a-venir)
+- [Programme de la voiture](https://github.com/ExploryKod/freenove_esp32_wrover)
+- [Modèle de la voiture](https://www.amazon.fr/Freenove-ESP32-WROVER-Contained-Compatible-Expressions/dp/B08X6PTQFM/ref=sr_1_5?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=1NFTVTE5M400B&dib=eyJ2IjoiMSJ9.ouyBflLDqHVkfViARMLD6Bn9gOI47kLGrM-5LMAbtJPAUgPogSQ1tQyH60VxNGSHTf-JIYDTkVL4RJ2a7-L92dQ5aqD8IliDd4MzLvffNmw65QxSItZh_qi-vPHXgzjBhvcW8Vy00EckrayFx_47OCj3W4K6Y1W0jHZgIDF7DAvRTI9XcC7oRK8T9xeUORe35q6RJ29TNUuhLCcN5fXl-WqLhsgNb2JA0XzHwnqwHaBBwj-xZ77ohEfVpUYfdyOMWf1wO01Fa42MzKl0b-UGD6PwYD-kBCJYQS3J9twWSGs.OrlAkZRIvlaYtQ2-9pywcADOLR7VY4iRx_9Ps1DkMnk&dib_tag=se&keywords=esp32+car&qid=1715602634&sprefix=esp+32+car,aps,125&sr=8-5)
+
+
+## Equipe Backend (ce repository) : 
+
+- [Amaury](https://github.com/ExploryKod) 
+- [Nassim](https://github.com/NasssDev)
+- [Justin](https://github.com/Jykiin)
 
 ## Objectif
 
@@ -17,6 +32,8 @@ L'objectif principal est de créer une interface intuitive pour les pilotes afin
 - Contrôle à distance du véhicule via l'application mobile.
 - Visualisation en temps réel des données de télémétrie (vitesse, orientation, etc.).
 - Mode suiveur de ligne autonome pour les courses sans intervention humaine.
+
+## ⚙️ Configuration locale du projet
 
 ## Matériel et Logiciel Utilisés
 
