@@ -22,6 +22,7 @@ import (
 
 const (
 	serverIP = "192.168.87.10"
+	//serverIP = "127.0.0.1"
 	port     = 7000
 	boundary = "--123456789000000000000987654321"
 )
