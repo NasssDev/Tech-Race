@@ -1,6 +1,8 @@
 
 # HETIC Projet Final: “ Tech-Race “
 
+<img src="https://img.shields.io/badge/golang-%5E1.22-blue">
+
 <div align="center">
    <img src="https://github.com/NasssDev/Tech-Race/assets/167258734/8022059e-d34b-422f-9010-bf8d8fdd7132" alt="image" width="300" height="200"/>
 </div>
@@ -72,6 +74,7 @@ BOUNDARY=--123456789000000000000987654321
 5. Aller à la racine du projet et lancer ces commandes : 
 Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 8889 (adminer) et 5432 (postgres) sont libres.
 - Lancer docker : `docker compose up -d`
+- Installer les dépendances : `go mod download` et `go mod tidy`
 - Lancer le projet : `go run cmd/api/main.go`
 - Lancer cloudinarace pour la gestion vidéo (si besoin): `make cloudinarace`
 Si vous n'avez pas Make, lancez cloudinarace via : `cd pkg/other/cloudinary && go run main/main.go --port=8083`
