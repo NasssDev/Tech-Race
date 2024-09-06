@@ -19,19 +19,19 @@ type MQTTClient struct {
 }
 
 func NewMQTTClient(db models.DatabaseInterface) *MQTTClient {
-	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.87.103:1883")
+	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.16.82:1883")
 	client := MQTT.NewClient(opts)
 	return &MQTTClient{client: client, db: db}
 }
 
 func (m *MQTTClient) ConnectAndSubscribe(isAutopilot bool) error {
 	m.isAutopilot = isAutopilot
-	_, err := m.db.GetCurrentSessionID()
+	//_, err := m.db.GetCurrentSessionID()
 	// TODO Why isn't the error being returned
-	if err != nil {
-		//fmt.Println(err)
-		return nil
-	}
+	//if err != nil {
+	//	//fmt.Println(err)
+	//	return nil
+	//}
 	if token := m.client.Connect(); token.Wait() && token.Error() != nil {
 		return token.Error()
 	}
@@ -80,6 +80,7 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 			m.isCollision = true
 		}
 		if m.isCollision == true {
+			fmt.Println("Collision detected", m.isCollision, distance)
 			timestamp := time.Now()
 			data := models.Collision{Distance: distance, IsCollision: m.isCollision, Timestamp: timestamp, IDSession: sessionID}
 			err = m.db.InsertSonarData(data)
@@ -89,14 +90,14 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 		}
 
 	}
-	sessionID, err = m.db.GetCurrentSessionID()
-	if err != nil {
-		//fmt.Println(err)
-		return
-	}
+	//sessionID, err = m.db.GetCurrentSessionID()
+	//if err != nil {
+	//	//fmt.Println(err)
+	//	return
+	//}
 	if m.isAutopilot {
 		//println("autopilot", m.isCollision, m.valueTrack)
-		c, _, err := websocket.DefaultDialer.Dial("ws://192.168.1.10/ws", nil)
+		c, _, err := websocket.DefaultDialer.Dial("ws://192.168.16.10/ws", nil)
 		if err != nil {
 			fmt.Println(err)
 			return
