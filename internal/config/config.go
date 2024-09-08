@@ -7,10 +7,10 @@ import (
 )
 
 type AppInfo struct {
-	DatabaseUrl string
-	ServerAddr  string
-	CloudinaryID string
-	CloudinaryUrl string
+	DatabaseUrl         string
+	ServerAddr          string
+	CloudinaryID        string
+	CloudinaryUrl       string
 	CloudinaryUploadUrl string
 }
 
@@ -29,10 +29,10 @@ func LoadAppInfo() *AppInfo {
 	cloudinaryUploadUrl := getEnv("CLOUDINARY_UPLOAD_URL", "http://localhost:8083/upload-video")
 
 	config := &AppInfo{
-		DatabaseUrl: databaseURL,
-		ServerAddr:  serverAddr,
-		CloudinaryID: cloudinaryID,
-		CloudinaryUrl: cloudinaryUrl,
+		DatabaseUrl:         databaseURL,
+		ServerAddr:          serverAddr,
+		CloudinaryID:        cloudinaryID,
+		CloudinaryUrl:       cloudinaryUrl,
 		CloudinaryUploadUrl: cloudinaryUploadUrl,
 	}
 

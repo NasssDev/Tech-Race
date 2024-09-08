@@ -11,7 +11,6 @@ import (
 	"hetic/tech-race/internal/config"
 	"hetic/tech-race/internal/models"
 	"io"
-	"log"
 	"net"
 	"net/http"
 	OS "os"
@@ -175,6 +174,7 @@ func UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) 
 
 	//test : upload-video?url=../../../tmp/video/2024-07-11T16:29:13.mp4&id=2024-07-11T16:29:13
 	url := fmt.Sprintf("%s?url=%s&id=%s", uploadURL, videoURL, videoID)
+	assetData := models.AssetData{}
 	println("package cloudinary appelé: ", url)
 
 	cloudinaryClient := http.Client{
@@ -183,14 +183,14 @@ func UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) 
 
 	req, err := http.NewRequest(http.MethodGet, url, nil)
 	if err != nil {
-		log.Fatal(err)
+		return assetData, fmt.Errorf("UploadVideoToCloudinary - problem getting session id:\n %s", err)
 	}
 
 	req.Header.Set("User-Agent", "techrace-cloudinary")
 
-	res, getErr := cloudinaryClient.Do(req)
-	if getErr != nil {
-		log.Fatal(getErr)
+	res, getErrClient := cloudinaryClient.Do(req)
+	if getErrClient != nil {
+		return assetData, fmt.Errorf("UploadVideoToCloudinary - problem getting cloudinary client:\n %s", getErrClient)
 	}
 
 	if res.Body != nil {
@@ -199,17 +199,15 @@ func UploadVideoToCloudinary(uploadURL string, videoURL string, videoID string) 
 
 	body, readErr := io.ReadAll(res.Body)
 	if readErr != nil {
-		log.Fatal(readErr)
+		return assetData, fmt.Errorf("UploadVideoToCloudinary - problem with read io stream:\n %s", readErr)
 	}
 
-	assetData := models.AssetData{}
 	jsonErr := json.Unmarshal(body, &assetData)
 	if jsonErr != nil {
-		log.Fatal(jsonErr)
+		return assetData, fmt.Errorf("UploadVideoToCloudinary - problem with json unMarshall process:\n %s", jsonErr)
 	}
-	println("json response is ok")
-
-	fmt.Println(assetData.Data.Data.URL)
+	println("UploadVideoToCloudinary - json response is ok \n")
+	fmt.Printf("UploadVideoToCloudinary - url issu de cloudinary aprés upload des vidéos:\n %s", assetData.Data.Data.URL)
 
 	return assetData, nil
 }
@@ -219,14 +217,13 @@ func (u *UploadService) InsertVideo(videoPath string) error {
 	sessionID, sesserr := u.db.GetLastSessionID()
 	if sesserr != nil {
 		println("problem getting session id", sesserr)
-		return sesserr
+		return fmt.Errorf("problem getting session id: %s", sesserr)
 	}
 
 	data := models.Video{VideoURL: videoPath, IDSession: sessionID}
 	err := u.db.InsertVideoData(data)
 	if err != nil {
-		fmt.Println(err)
-		return err
+		return fmt.Errorf("erreur lors de l'insertion de video: %s", err)
 	}
 
 	println("insertion de la video en bdd")
