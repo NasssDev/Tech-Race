@@ -19,8 +19,9 @@ func SetupRouter(sessionService *services.SessionService, uploadService *service
 	fileServer := http.FileServer(http.Dir("static"))
 	r.Handle("/static/*", http.StripPrefix("/static/", fileServer))
 
-	// Serve the home page
+	// Serve the html pages
 	r.Get("/", handlers.ServeHome)
+	r.Get("/docs", handlers.ServeDocs)
 
 	r.Get("/sessions", sessionHandler.GetAll())
 	r.Get("/sessions/start/{is_autopilot}", sessionHandler.Start())
