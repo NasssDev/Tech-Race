@@ -11,7 +11,7 @@ import (
 )
 
 func main() {
-	cfg := config.LoadFile()
+	cfg := config.LoadAppInfo()
 
 	db := database.Connect(cfg.DatabaseUrl)
 
