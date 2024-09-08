@@ -101,9 +101,11 @@ func (s *SessionService) GetAllSessionInfo() ([]models.SessionInfo, error) {
 		if err != nil {
 			return nil, err
 		}
+
 		videoInfo := models.VideoInfo{
 			VideoURLs: make([]string, len(videos)),
 		}
+
 		for i, video := range videos {
 			videoInfo.VideoURLs[i] = video.VideoURL
 		}
