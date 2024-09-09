@@ -13,7 +13,15 @@
     background-color: var(--Very-light-gray);
     width: 100%;
     height: auto;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+}
 
+.docs-page {
+    background-color: var(--Very-light-gray);
+    width: 100%;
     display: flex;
     flex-direction: column;
     align-items: center;
@@ -187,12 +195,29 @@ img.--with-border {
 .title-container {
     background-color: var(--Very-dark-cyan);
     padding: var(--first-level-space);
-    grid-row: 1;
-    grid-column: 2 / 3;
     width: 100%;
     height: auto;
 
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+
+.title-container-grid {
+    grid-row: 1;
+    grid-column: 2 / 3;
+}
+
+.bg-header {
+    /*https://picsum.photos/1920/1920/?random*/
+    background: url(../images/carpng.png) center center no-repeat;
+    background-size: 50%;
+    background-color: #444444;
+    background-position: bottom;
+    background-attachment: fixed;
+}
+
+.bg-quote {
+    background: url(https://picsum.photos/1600/1600/?random) center center no-repeat;
+    background-attachment: fixed;
 }

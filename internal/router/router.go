@@ -22,6 +22,7 @@ func SetupRouter(sessionService *services.SessionService, uploadService *service
 	// Serve the html pages
 	r.Get("/", handlers.ServeHome)
 	r.Get("/docs", handlers.ServeDocs)
+	r.Get("/tarifs", handlers.ServeTarifs)
 
 	r.Get("/sessions", sessionHandler.GetAll())
 	r.Get("/sessions/start/{is_autopilot}", sessionHandler.Start())
