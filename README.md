@@ -67,19 +67,46 @@ GOARCH=amd64 (vérifier aussi que c'est bien la bonne architecture pour vous aus
 
 #### 📍Configurations du corps de l'API
 1. Configurer le `.env` du projet à la racine :
-``` 
-PORT_VIDEO=7000
+```
 IP=127.0.0.1
 BOUNDARY=--123456789000000000000987654321
+UPLOAD_VIDEO_URL=http://localhost:8083/upload-video
+CLOUDINARY_URL=xxxx > votre url de cloudinary
+CLOUDINARY_ID=xxxxx > votre id cloudinary
+PortVideo=7000
+ESP32_ADDRESS=192.168.16.10
+ESP32_PORT=7000
+RELAY_ADDRESS=:8080
+STREAM_BOUNDARY=123456789000000000000987654321
+DATABASE_URL=postgresql://root:xxxxx@xxxx/tech_race > demandez-nous l'url de la bdd 
 ```
 
 2. 🛵 Aller à la racine du projet et lancer ces commandes :
-   Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 8889 (adminer) et 5432 (postgres) sont libres.
+
+**Usage de nos scripts (Attention cela kill des ports sur votre machine)**<br><br>
+***Il est nécessaire d'installer make si vous avez Windows. Il est natif sur Mac et Linux.***
+- Lancer le script `./start_app.sh` va ouvrir les ports utilisés par l'API et lancer les container docker puis l'app (`go run`)
+- Sur un autre terminal : `make cloudinarace` ou sans make :  `cd pkg/other/cloudinary && go run main/main.go --port=8083`
+
+**Manuellement :**
+- Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 8889 (adminer) et 5432 (postgres) sont libres.
 - Lancer docker : `docker compose up -d`
 - Installer les dépendances : `go mod download` et `go mod tidy`
 - Lancer le projet : `go run cmd/api/main.go`
-- Lancer cloudinarace pour la gestion vidéo (si besoin): `make cloudinarace`
-  Si vous n'avez pas Make, lancez cloudinarace via : `cd pkg/other/cloudinary && go run main/main.go --port=8083`
+- Lancer cloudinarace pour la gestion vidéo (si besoin):
+    ```bash
+    cd pkg/other/cloudinary && go run main/main.go --port=8083`
+    ```
+**Pour travailler sur le style: tailwind**
+
+- Pour travailler en phase de developpement :
+```sh
+    npm run watch
+```
+- Pour builder avant mise en prod :
+```sh
+    npm run build
+```
 
 3. 📊 Configurer la base de donnée:
 - Se rendre sur [adminer](http://localhost:8089) ou [pgAdmin](http://localhost:8888)
@@ -94,9 +121,9 @@ Mot de passe : password
 serveur : db 
 ```
 
-- Import le dump de la base de donnée présent sur `dump/tech_race_bdd.sql`
+- Importer le dump de la base de donnée présent sur `dump/tech_race_bdd.sql`
 
-## 🧰 Matériel et Logiciel du véhicule lié à cet API
+## 🧰 Matériel et logiciel du véhicule lié à l'API
 
 ### Matériel et capteurs présent sur le véhicule
 - Architecture ESP32

@@ -33,3 +33,6 @@ else
     echo "Error: Docker Compose failed to start. Exiting."
     exit 1
 fi
+
+npm run build
+go run cmd/api/main.go
