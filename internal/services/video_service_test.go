@@ -9,15 +9,8 @@ import (
 	"net/http"
 	"os"
 	"path/filepath"
-	"runtime"
 	"testing"
 )
-
-var getGOOS = func() string {
-	return runtime.GOOS
-}
-
-var httpGet = http.Get
 
 // Unzip TEST //
 func TestUnzip_Success(t *testing.T) {
