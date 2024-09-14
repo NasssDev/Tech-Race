@@ -600,20 +600,12 @@ video {
   position: relative;
 }
 
-.top-0 {
-  top: 0px;
-}
-
-.bottom-0 {
-  bottom: 0px;
-}
-
-.left-0 {
-  left: 0px;
-}
-
 .right-3 {
   right: 0.75rem;
+}
+
+.top-0 {
+  top: 0px;
 }
 
 .mx-4 {
@@ -639,10 +631,6 @@ video {
   margin-bottom: 1.5rem;
 }
 
-.mt-5 {
-  margin-top: 1.25rem;
-}
-
 .mt-2 {
   margin-top: 0.5rem;
 }
@@ -655,32 +643,8 @@ video {
   display: none;
 }
 
-.aspect-video {
-  aspect-ratio: 16 / 9;
-}
-
 .h-screen {
   height: 100vh;
-}
-
-.h-\[600px\] {
-  height: 600px;
-}
-
-.max-h-screen {
-  max-height: 100vh;
-}
-
-.max-h-\[600px\] {
-  max-height: 600px;
-}
-
-.min-h-screen {
-  min-height: 100vh;
-}
-
-.min-h-\[600px\] {
-  min-height: 600px;
 }
 
 .min-h-\[500px\] {
@@ -705,10 +669,6 @@ video {
 
 .flex-wrap {
   flex-wrap: wrap;
-}
-
-.items-start {
-  align-items: flex-start;
 }
 
 .items-end {
@@ -748,12 +708,17 @@ video {
   background-color: rgb(255 255 255 / 0.2);
 }
 
+.p-2 {
+  padding: 0.5rem;
+}
+
 .p-4 {
   padding: 1rem;
 }
 
-.p-2 {
-  padding: 0.5rem;
+.px-0 {
+  padding-left: 0px;
+  padding-right: 0px;
 }
 
 .px-4 {
@@ -776,33 +741,8 @@ video {
   padding-bottom: 40px;
 }
 
-.px-0 {
-  padding-left: 0px;
-  padding-right: 0px;
-}
-
 .pb-12 {
   padding-bottom: 3rem;
-}
-
-.pt-\[242px\] {
-  padding-top: 242px;
-}
-
-.pb-\[242px\] {
-  padding-bottom: 242px;
-}
-
-.ps-4 {
-  padding-inline-start: 1rem;
-}
-
-.pl-4 {
-  padding-left: 1rem;
-}
-
-.pt-\[386px\] {
-  padding-top: 386px;
 }
 
 .pt-\[346px\] {
@@ -826,19 +766,9 @@ video {
   line-height: 2.25rem;
 }
 
-.text-5xl {
-  font-size: 3rem;
-  line-height: 1;
-}
-
 .text-lg {
   font-size: 1.125rem;
   line-height: 1.75rem;
-}
-
-.text-sm {
-  font-size: 0.875rem;
-  line-height: 1.25rem;
 }
 
 .text-xl {
@@ -912,22 +842,12 @@ video {
 }
 
 @media (min-width: 768px) {
-  .md\:mx-4 {
-    margin-left: 1rem;
-    margin-right: 1rem;
-  }
-
-  .md\:p-8 {
-    padding: 2rem;
-  }
-
   .md\:p-4 {
     padding: 1rem;
   }
 
-  .md\:px-4 {
-    padding-left: 1rem;
-    padding-right: 1rem;
+  .md\:p-8 {
+    padding: 2rem;
   }
 
   .md\:text-2xl {
