@@ -6,6 +6,7 @@ import (
 	"hetic/tech-race/internal/services"
 	"hetic/tech-race/pkg/util"
 	"net/http"
+	"path/filepath"
 	"runtime"
 	"strconv"
 )
@@ -64,19 +65,31 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 		}
 
 		videoservice := services.NewVideoService(runtime.GOOS)
+		recordingData, err := videoservice.StartRecording(h.sessionService)
 
-		//_, err = videoservice.StartRecording(h.sessionService)
-		//if err != nil {
-		//	util.RenderJson(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "Car video cannot record", "autopilot": isAutopilotStr, "recording": ""})
-		//	//w.Write([]byte("Session started with no recording \n"))
-		//	fmt.Println("Error starting recording while session started:", err)
-		//	//http.Error(w, err.Error(), http.StatusInternalServerError)
-		//	return
-		//}
 		go func() {
 			_, err := videoservice.StartRecording(h.sessionService)
 			if err != nil {
 				fmt.Println("Error starting recording while session started:", err)
+			}
+			var cloudinaryPackageUrl = "http://localhost:8083/upload-video"
+			dirFromCloudinarace := "../../../tmp/video"
+
+			resp, err := services.UploadVideoToCloudinary(cloudinaryPackageUrl, filepath.Join(dirFromCloudinarace, recordingData.VideoName+".mp4"), recordingData.VideoName)
+			if err != nil {
+				fmt.Println("Error uploading video:", err)
+
+			}
+
+			videoPath := resp.Data.Data.URL
+			if videoPath != "" {
+				err := h.uploadService.InsertVideo(videoPath)
+				if err != nil {
+					println("error in database insertion: ", err)
+					http.Error(w, err.Error(), http.StatusInternalServerError)
+				}
+			} else {
+				http.Error(w, "L'url de la vidéo n'a pas été trouvé", http.StatusInternalServerError)
 			}
 		}()
 
