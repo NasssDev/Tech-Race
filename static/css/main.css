@@ -211,7 +211,7 @@ img.--with-border {
 .bg-header {
     /*https://picsum.photos/1920/1920/?random*/
     background: url(../images/carpng.png) center center no-repeat;
-    background-size: 100%;
+    background-size: 50%;
     background-color: #444444;
     background-position: center;
     background-attachment: fixed;
