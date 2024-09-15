@@ -14,23 +14,32 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=Lexend+Deca&display=swap"
           rel="stylesheet">
-
+    <link
+            rel="stylesheet"
+            href="https://cdn.xeiaso.net/static/pkg/iosevka/family.css"
+    />
     <link rel="stylesheet" href="../static/css/variables.css" type="text/css">
     <link rel="stylesheet" href="../static/css/reset.css" type="text/css">
     <link rel="stylesheet" href="../static/css/main.css" type="text/css">
     <link rel="stylesheet" href="../static/css/desktop.css" type="text/css">
+    <link rel="stylesheet" href="../static/css/tailwind.css" />
 
     <title>Tech-race - la course des héros</title>
 
 </head>
 
-<body>
+<body class="body-main">
 
-<main class="main-page">
+<main class="main-page main-grid">
 
-    <div class="title-container">
+    <div class="title-container title-container-grid">
         <h1 class="title-color title-font title-size title-margin">API de Tech Race</h1>
-        <p class="para-color para-font para-size">Bienvenue sur l'API qui permet à la voiture des enfers de rouler !</p>
+        <p class="para-color para-font para-size">Bienvenue sur l'API qui permet à la voiture Tech Race de rouler !</p>
+        <div class="flex gap-5 my-5">
+            <a href="https://github.com/NasssDev/Tech-Race/blob/main/README.md" class="font-lexend text-transparent-white text-lg hover:text-white">Documentation</a>
+            <a href="/docs#demos" class="font-lexend text-transparent-white text-lg hover:text-white">Démo</a>
+            <a href="/tarifs" class="font-lexend text-transparent-white text-lg hover:text-white">Tarifs</a>
+        </div>
     </div>
 
     <div class="cards-container card-container-form">
@@ -40,7 +49,7 @@
             </div>
             <h1 class="title-color title-font title-size title-margin">Télécharger l'app</h1>
             <p class="para-color para-font para-size para-margin">
-                "Tech Race App" est nécessaire pour que la voiture des enfers démarre.</p>
+                "Tech Race App" est nécessaire pour que la voiture Tech Race démarre.</p>
             <a type="button" href="https://play.google.com/store/apps?hl=fr" class="btn-text-color-3 btn-size btn-font">
                 <img class="img-provider" src="../static/images/png/google-play-badge.png" alt="logo google play store"/>
             </a>

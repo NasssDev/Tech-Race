@@ -1,0 +1,24 @@
+{
+  "name": "tech-race-backend",
+  "version": "1.0.0",
+  "description": "the api to run tech race car",
+  "main": "index.js",
+  "scripts": {
+      "build": "tailwindcss build -o static/css/tailwind.css",
+      "watch": "tailwindcss build -o static/css/tailwind.css --watch",
+      "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/NasssDev/Tech-Race.git"
+  },
+  "author": "The backend team : Amaury - Nassim - Justin",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/NasssDev/Tech-Race/issues"
+  },
+  "homepage": "https://github.com/NasssDev/Tech-Race#readme",
+  "dependencies": {
+    "tailwindcss": "^3.4.10"
+  }
+}

@@ -12,5 +12,7 @@
     </content>
     <orderEntry type="inheritedJdk" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="family" level="application" />
+    <orderEntry type="library" name="embed" level="application" />
   </component>
 </module>
