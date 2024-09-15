@@ -35,21 +35,23 @@ func NewVideoRelay() *VideoRelay {
 func (vr *VideoRelay) run() {
 	for {
 		data := <-vr.broadcast
+		log.Printf("Broadcasting data to %d clients", len(vr.clients)) // Log client count before broadcasting
 		vr.clientsLock.Lock()
 		for client := range vr.clients {
 			_, err := client.writer.Write(data)
 			if err != nil {
-				log.Printf("Erreur d'envoi au client %s: %v", client.conn.RemoteAddr(), err)
+				log.Printf("Error sending to client %s: %v", client.conn.RemoteAddr(), err)
 				vr.removeClient(client)
 				continue
 			}
 			err = client.writer.Flush()
 			if err != nil {
-				log.Printf("Erreur de flush pour le client %s: %v", client.conn.RemoteAddr(), err)
+				log.Printf("Error flushing to client %s: %v", client.conn.RemoteAddr(), err)
 				vr.removeClient(client)
 			}
 		}
 		vr.clientsLock.Unlock()
+		log.Println("Broadcast completed.") // Log broadcast completion
 	}
 }
 
@@ -59,14 +61,24 @@ func (vr *VideoRelay) addClient(conn net.Conn) {
 	vr.clients[client] = true
 	vr.clientsLock.Unlock()
 
-	// Envoyer les en-têtes HTTP pour le flux MJPEG
-	client.writer.WriteString("HTTP/1.1 200 OK\r\n")
+	log.Printf("New client connected: %s", conn.RemoteAddr()) // Log new client connection
+
+	// Send HTTP headers for MJPEG stream
+	_, err := client.writer.WriteString("HTTP/1.1 200 OK\r\n")
+	if err != nil {
+		log.Printf("Error writing HTTP header to client %s: %v", conn.RemoteAddr(), err)
+		vr.removeClient(client)
+		return
+	}
 	client.writer.WriteString("Access-Control-Allow-Origin: *\r\n")
 	client.writer.WriteString(fmt.Sprintf("Content-Type: multipart/x-mixed-replace; boundary=%s\r\n", cfg.StreamBoundary))
 	client.writer.WriteString("\r\n")
-	client.writer.Flush()
-
-	log.Printf("Nouveau client connecté: %s", conn.RemoteAddr())
+	err = client.writer.Flush()
+	if err != nil {
+		log.Printf("Error flushing initial headers to client %s: %v", conn.RemoteAddr(), err)
+		vr.removeClient(client)
+		return
+	}
 }
 
 func (vr *VideoRelay) removeClient(client *Client) {
@@ -74,40 +86,43 @@ func (vr *VideoRelay) removeClient(client *Client) {
 	delete(vr.clients, client)
 	vr.clientsLock.Unlock()
 	client.conn.Close()
-	log.Printf("Client déconnecté: %s", client.conn.RemoteAddr())
+	log.Printf("Client disconnected: %s", client.conn.RemoteAddr()) // Log client disconnection
 }
 
 func (vr *VideoRelay) handleESP32Connection() {
 	for {
+		log.Printf("Attempting to connect to ESP32 at %s:%s...", cfg.Esp32Address, cfg.Esp32Port)
 		conn, err := net.Dial("tcp", fmt.Sprintf("%s:%s", cfg.Esp32Address, cfg.Esp32Port))
 		if err != nil {
-			log.Printf("Erreur de connexion à l'ESP32: %v. Tentative de reconnexion dans 5 secondes...", err)
+			log.Printf("Error connecting to ESP32: %v. Retrying in 5 seconds...", err)
 			time.Sleep(5 * time.Second)
 			continue
 		}
 		defer conn.Close()
 
-		log.Println("Connecté à l'ESP32")
+		log.Println("Connected to ESP32")
 
 		reader := bufio.NewReader(conn)
 		for {
-			// Lire jusqu'à la limite
+			log.Println("Waiting for data from ESP32...")
+			// Read until boundary
 			_, err := reader.ReadString('\n')
 			if err != nil {
 				if err == io.EOF {
-					log.Println("Connexion à l'ESP32 fermée. Tentative de reconnexion...")
+					log.Println("ESP32 connection closed. Reconnecting...")
 					break
 				}
-				log.Printf("Erreur de lecture de la limite: %v", err)
+				log.Printf("Error reading boundary from ESP32: %v", err)
 				continue
 			}
 
-			// Lire les en-têtes
+			// Read headers
+			log.Println("Reading headers from ESP32...")
 			headers := make([]string, 0)
 			for {
 				line, err := reader.ReadString('\n')
 				if err != nil {
-					log.Printf("Erreur de lecture des en-têtes: %v", err)
+					log.Printf("Error reading headers from ESP32: %v", err)
 					break
 				}
 				if line == "\r\n" {
@@ -116,12 +131,13 @@ func (vr *VideoRelay) handleESP32Connection() {
 				headers = append(headers, line)
 			}
 
-			// Extraire la longueur du contenu
+			// Extract content length
 			var contentLength int
 			for _, header := range headers {
 				if strings.HasPrefix(header, "Content-Length:") {
 					_, err := fmt.Sscanf(header, "Content-Length: %d", &contentLength)
 					if err != nil {
+						log.Printf("Error parsing Content-Length header: %v", err)
 						return
 					}
 					break
@@ -129,26 +145,29 @@ func (vr *VideoRelay) handleESP32Connection() {
 			}
 
 			if contentLength == 0 {
-				log.Println("Longueur de contenu invalide")
+				log.Println("Invalid content length from ESP32, skipping this frame.")
 				continue
 			}
 
-			// Lire le corps de l'image
+			// Read image body
+			log.Printf("Reading image body of length %d...", contentLength)
 			body := make([]byte, contentLength)
 			_, err = io.ReadFull(reader, body)
 			if err != nil {
-				log.Printf("Erreur de lecture du corps de l'image: %v", err)
+				log.Printf("Error reading image body from ESP32: %v", err)
 				continue
 			}
 
-			// Construire le message complet
+			// Construct complete message
 			message := fmt.Sprintf("\r\n--%s\r\n", cfg.StreamBoundary)
 			message += strings.Join(headers, "")
 			message += "\r\n"
 
-			// Envoyer l'en-tête et le corps aux clients
+			log.Println("Sending frame to clients...")
+			// Send header and body to clients
 			vr.broadcast <- []byte(message)
 			vr.broadcast <- body
+			log.Println("Frame sent to clients.") // Log successful frame relay
 		}
 	}
 }
@@ -158,20 +177,22 @@ func main() {
 	go videoRelay.run()
 	go videoRelay.handleESP32Connection()
 
+	log.Printf("Starting video relay server on %s", cfg.RelayAddress)
 	listener, err := net.Listen("tcp", cfg.RelayAddress)
 	if err != nil {
-		log.Fatal("Erreur d'écoute:", err)
+		log.Fatal("Error listening:", err)
 	}
 	defer listener.Close()
 
-	log.Printf("Serveur de relais vidéo en écoute sur %s", cfg.RelayAddress)
+	log.Printf("Video relay server listening on %s", cfg.RelayAddress)
 
 	for {
 		conn, err := listener.Accept()
 		if err != nil {
-			log.Println("Erreur d'acceptation de la connexion:", err)
+			log.Println("Error accepting connection:", err)
 			continue
 		}
+		log.Printf("New client attempting to connect: %s", conn.RemoteAddr())
 		go videoRelay.addClient(conn)
 	}
 }
