@@ -57,10 +57,26 @@ func (v *VideoService) StartRecording(sessionService *SessionService) (*Recordin
 	}
 	defer conn.Close()
 
-	// retrieve the good binary depends on OS
+	/*// retrieve the good binary depends on OS
 	ffmpegPath, err := DownloadAndExtractFFMPEG(v.CurrentOS)
 	if err != nil {
 		return nil, fmt.Errorf("error during download and extract binary: %w", err)
+	}*/
+	ffmpegPath, err := ffmpegExists()
+	if err != nil {
+		return nil, fmt.Errorf("error while checking ffmpeg existence: %w", err)
+	}
+
+	// If ffmpeg doesn't exist, call the download method
+	if ffmpegPath == "" {
+		ffmpegPath, err = DownloadAndExtractFFMPEG(v.CurrentOS)
+		if err != nil {
+			return nil, fmt.Errorf("error during download and extract binary: %w", err)
+		}
+
+		fmt.Println("FFmpeg downloaded and extracted to:", ffmpegPath)
+	} else {
+		fmt.Println("FFmpeg already exists at:", ffmpegPath)
 	}
 
 	// path to save videos in tmp/
@@ -396,4 +412,27 @@ func handleTarXZFile(ffmpegDir string, resp *http.Response) (string, error) {
 		}
 	}
 	return ffmpegDir, nil
+}
+
+func ffmpegExists() (string, error) {
+	// Check directly in bin/ffmpeg
+	ffmpegPath := "../../bin/ffmpeg"
+	if _, err := OS.Stat(ffmpegPath); err == nil {
+		// File exists, return the path
+		return ffmpegPath, nil
+	}
+
+	// Check for ffmpeg in bin/**/ffmpeg
+	matches, err := filepath.Glob("../../bin/**/ffmpeg")
+	if err != nil {
+		return "", fmt.Errorf("error checking for ffmpeg: %w", err)
+	}
+
+	// If matches found, return the first match (you can choose how to handle multiple matches if needed)
+	if len(matches) > 0 {
+		return matches[0], nil
+	}
+
+	// ffmpeg not found
+	return "", nil
 }

@@ -178,3 +178,26 @@ func TestDownloadAndExtractFFMPEG_UnsupportedOperatingSystem(t *testing.T) {
 	assert.Error(t, err)
 	assert.Equal(t, fmt.Errorf("unsupported operating system: %s", "unsupported"), err)
 }
+
+// FFMPEGExists TEST //
+func TestFFMPEGExists_Success(t *testing.T) {
+	// !Important! Assuming that the ffmpeg file exists in the "bin/ffmpeg" directory
+	path, err := ffmpegExists()
+	assert.NoError(t, err)
+	assert.Equal(t, "../../bin/ffmpeg", path)
+}
+
+func TestFFMPEGExists_InSubdirectory(t *testing.T) {
+	// !Important! Assuming that the ffmpeg file exists in a subdirectory of "bin"
+	path, err := ffmpegExists()
+	assert.NoError(t, err)
+	assert.Contains(t, path, "bin/")
+	assert.Contains(t, path, "/ffmpeg")
+}
+
+func TestFFMPEGExists_NotFound(t *testing.T) {
+	// !Important! Assuming that the ffmpeg file does not exist in the "bin" directory or its subdirectories
+	path, err := ffmpegExists()
+	assert.NoError(t, err)
+	assert.Equal(t, "", path)
+}
