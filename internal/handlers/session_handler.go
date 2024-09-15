@@ -39,63 +39,58 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 		isAutopilotStr := chi.URLParam(r, "is_autopilot")
 		isAutopilot, err := strconv.ParseBool(isAutopilotStr)
 		if err != nil {
-			util.RenderJson(w, http.StatusOK, map[string]string{"status": "error", "message": "There is an error when parsing autopilot", "autopilot": ""})
-			//http.Error(w, err.Error(), http.StatusBadRequest)
+			util.RenderJson(w, http.StatusBadRequest, map[string]string{"status": "error", "message": "Invalid autopilot parameter", "autopilot": ""})
 			return
 		}
 
 		isActive, err := h.sessionService.IsSessionActive()
 		if err != nil {
-			util.RenderJson(w, http.StatusOK, map[string]string{"status": "error", "message": "There is an error when starting the car", "autopilot": isAutopilotStr})
-			//http.Error(w, err.Error(), http.StatusInternalServerError)
+			util.RenderJson(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "Error checking session status", "autopilot": ""})
 			return
 		}
 
 		if isActive {
-			util.RenderJson(w, http.StatusBadRequest, map[string]string{"status": "success", "message": "Autopilot mode is on", "autopilot": isAutopilotStr})
-			//http.Error(w, "A session is already active", http.StatusBadRequest)
+			util.RenderJson(w, http.StatusBadRequest, map[string]string{"status": "error", "message": "A session is already active", "autopilot": isAutopilotStr})
 			return
 		}
 
 		err = h.sessionService.Start(isAutopilot)
 		if err != nil {
-			util.RenderJson(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "Autopilot starting encounter an error", "autopilot": ""})
-			//http.Error(w, err.Error(), http.StatusInternalServerError)
+			util.RenderJson(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "Error starting session", "autopilot": ""})
 			return
 		}
 
-		videoservice := services.NewVideoService(runtime.GOOS)
-		recordingData, err := videoservice.StartRecording(h.sessionService)
+		// Envoyer la réponse HTTP immédiatement
+		util.RenderJson(w, http.StatusOK, map[string]string{"status": "success", "message": "Session started", "autopilot": isAutopilotStr, "recording": "starting"})
 
+		// Démarrer l'enregistrement vidéo en arrière-plan
 		go func() {
-			_, err := videoservice.StartRecording(h.sessionService)
+			videoservice := services.NewVideoService(runtime.GOOS)
+			recordingData, err := videoservice.StartRecording(h.sessionService)
 			if err != nil {
-				fmt.Println("Error starting recording while session started:", err)
+				fmt.Println("Error starting recording:", err)
+				return
 			}
+
 			var cloudinaryPackageUrl = "http://localhost:8083/upload-video"
 			dirFromCloudinarace := "../../../tmp/video"
 
 			resp, err := services.UploadVideoToCloudinary(cloudinaryPackageUrl, filepath.Join(dirFromCloudinarace, recordingData.VideoName+".mp4"), recordingData.VideoName)
 			if err != nil {
 				fmt.Println("Error uploading video:", err)
-
+				return
 			}
 
 			videoPath := resp.Data.Data.URL
 			if videoPath != "" {
 				err := h.uploadService.InsertVideo(videoPath)
 				if err != nil {
-					println("error in database insertion: ", err)
-					http.Error(w, err.Error(), http.StatusInternalServerError)
+					fmt.Println("Error inserting video in database:", err)
 				}
 			} else {
-				http.Error(w, "L'url de la vidéo n'a pas été trouvé", http.StatusInternalServerError)
+				fmt.Println("Video URL not found")
 			}
 		}()
-
-		fmt.Println("session started")
-		// send json response with success message
-		util.RenderJson(w, http.StatusOK, map[string]string{"status": "success", "message": "Autopilot mode is on", "autopilot": isAutopilotStr, "recording": "active"})
 	}
 }
 
