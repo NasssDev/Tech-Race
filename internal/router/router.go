@@ -29,5 +29,8 @@ func SetupRouter(sessionService *services.SessionService, uploadService *service
 	r.Get("/sessions/stop", sessionHandler.Stop())
 	r.Get("/sessions/info", sessionHandler.GetAllSessionInfo())
 
+	r.Get("/stream/start", handlers.StartStream())
+	r.Get("/stream/stop", handlers.StopStream())
+
 	return r
 }

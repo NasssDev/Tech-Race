@@ -6,7 +6,6 @@ import (
 	"hetic/tech-race/internal/services"
 	"hetic/tech-race/pkg/util"
 	"net/http"
-	"os/exec"
 	"runtime"
 	"strconv"
 )
@@ -63,17 +62,6 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
-		// Lance le relay du stream de l'esp32 permettant de gérer plusieurs connections simultanée sur le port 8082
-		go func() {
-			cmd := exec.Command("go", "run", "cmd/stream/main.go")
-			err := cmd.Run()
-			if err != nil {
-				util.RenderJson(w, http.StatusOK, map[string]string{"status": "error", "message": "Recording stream is not working", "stream": ""})
-				fmt.Println("Error running stream:", err)
-			}
-			util.RenderJson(w, http.StatusOK, map[string]string{"status": "success", "message": "Recording stream is on", "stream": "active"})
-		}()
 
 		videoservice := services.NewVideoService(runtime.GOOS)
 		_, err = videoservice.StartRecording(h.sessionService)
