@@ -42,7 +42,7 @@ func LoadAppInfo() *AppInfo {
 }
 
 func LoadStreamInfo() *StreamInfo {
-	esp32Address := getEnv("ESP32_ADDRESS", "192.168.104.10:7000")
+	esp32Address := getEnv("ESP32_ADDRESS", "192.168.104.10")
 	esp32Port := getEnv("ESP32_PORT", "7000")
 	relayAddress := getEnv("RELAY_ADDRESS", ":8080")
 	streamBoundary := getEnv("STREAM_BOUNDARY", "--123456789000000000000987654321")
