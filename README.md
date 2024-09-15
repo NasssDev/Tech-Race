@@ -83,7 +83,9 @@ DATABASE_URL=postgresql://root:xxxxx@xxxx/tech_race > demandez-nous l'url de la 
 
 2. 🛵 Aller à la racine du projet et lancer ces commandes :
 
-**Usage de nos scripts (Attention cela kill des ports sur votre machine)**<br><br>
+**Usage de nos scripts si Linux (ou wsl) (Attention cela kill des ports sur votre machine)**<br><br>
+> Vous devez pouvoir utiliser le mode `sudo`
+
 ***Il est nécessaire d'installer make si vous avez Windows. Il est natif sur Mac et Linux.***
 - Lancer le script `./start_app.sh` va ouvrir les ports utilisés par l'API et lancer les container docker puis l'app (`go run`)
 - Sur un autre terminal : `make cloudinarace` ou sans make :  `cd pkg/other/cloudinary && go run main/main.go --port=8083`

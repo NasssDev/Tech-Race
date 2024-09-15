@@ -39,24 +39,28 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 		isAutopilotStr := chi.URLParam(r, "is_autopilot")
 		isAutopilot, err := strconv.ParseBool(isAutopilotStr)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusBadRequest)
+			util.RenderJson(w, http.StatusOK, map[string]string{"status": "error", "message": "There is an error when parsing autopilot", "autopilot": ""})
+			//http.Error(w, err.Error(), http.StatusBadRequest)
 			return
 		}
 
 		isActive, err := h.sessionService.IsSessionActive()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			util.RenderJson(w, http.StatusOK, map[string]string{"status": "error", "message": "There is an error when starting the car", "autopilot": isAutopilotStr})
+			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
 		if isActive {
-			http.Error(w, "A session is already active", http.StatusBadRequest)
+			util.RenderJson(w, http.StatusBadRequest, map[string]string{"status": "success", "message": "Autopilot mode is on", "autopilot": isAutopilotStr})
+			//http.Error(w, "A session is already active", http.StatusBadRequest)
 			return
 		}
 
 		err = h.sessionService.Start(isAutopilot)
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			util.RenderJson(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "Autopilot starting encounter an error", "autopilot": ""})
+			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -65,41 +69,26 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			cmd := exec.Command("go", "run", "cmd/stream/main.go")
 			err := cmd.Run()
 			if err != nil {
+				util.RenderJson(w, http.StatusOK, map[string]string{"status": "error", "message": "Recording stream is not working", "stream": ""})
 				fmt.Println("Error running stream:", err)
 			}
+			util.RenderJson(w, http.StatusOK, map[string]string{"status": "success", "message": "Recording stream is on", "stream": "active"})
 		}()
 
-		videoservice := services.NewVideoService(runtime.GOOS)
-		//recordingData, err := videoservice.StartRecording(h.sessionService)
-		_, err = videoservice.StartRecording(h.sessionService)
-		if err != nil {
-			fmt.Println("Error starting recording:", err)
-		}
-
-		//var cloudinaryPackageUrl = "http://localhost:8083/upload-video"
-		//dirFromCloudinarace := "../../../tmp/video"
-
-		//resp, err := services.UploadVideoToCloudinary(cloudinaryPackageUrl, filepath.Join(dirFromCloudinarace, recordingData.VideoName+".mp4"), recordingData.VideoName)
+		//videoservice := services.NewVideoService(runtime.GOOS)
+		//_, err = videoservice.StartRecording(h.sessionService)
 		//if err != nil {
-		//	fmt.Println("Error uploading video:", err)
-		//}
-		//
-		//videoPath := resp.Data.Data.URL
-		//if videoPath != "" {
-		//	err := h.uploadService.InsertVideo(videoPath)
-		//	if err != nil {
-		//		println("error in database insertion: ", err)
-		//		http.Error(w, err.Error(), http.StatusInternalServerError)
-		//	}
-		//} else {
-		//	http.Error(w, "L'url de la vidéo n'a pas été trouvé", http.StatusInternalServerError)
+		//	util.RenderJson(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "Car video cannot record", "autopilot": isAutopilotStr, "recording": ""})
+		//	//w.Write([]byte("Session started with no recording \n"))
+		//	fmt.Println("Error starting recording while session started:", err)
+		//	//http.Error(w, err.Error(), http.StatusInternalServerError)
+		//	return
 		//}
 
-		// don't display this if StartRecording returned an error
-		w.Write([]byte("Session started\n"))
-
+		//w.Write([]byte("Session started\n"))
+		fmt.Println("session started")
 		// send json response with success message
-		util.RenderJson(w, http.StatusOK, map[string]string{"message": "Session started"})
+		util.RenderJson(w, http.StatusOK, map[string]string{"status": "success", "message": "Autopilot mode is on", "autopilot": isAutopilotStr, "recording": "active"})
 	}
 }
 
@@ -107,13 +96,15 @@ func (h *SessionHandler) Stop() http.HandlerFunc {
 	return func(w http.ResponseWriter, r *http.Request) {
 		err := h.sessionService.Stop()
 		if err != nil {
-			http.Error(w, err.Error(), http.StatusInternalServerError)
+			util.RenderJson(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "There is an error in stopping the car", "autopilot": "", "recording": ""})
+			//http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		videoservice := services.NewVideoService(runtime.GOOS)
 		videoservice.IsRecording = false
-
-		w.Write([]byte("Session stopped\n"))
+		fmt.Println("session stopped")
+		//w.Write([]byte("Session stopped\n"))
+		util.RenderJson(w, http.StatusOK, map[string]string{"status": "success", "message": "Car have been stopped", "autopilot": "", "recording": ""})
 	}
 }
 func (h *SessionHandler) GetAllSessionInfo() http.HandlerFunc {
@@ -121,7 +112,8 @@ func (h *SessionHandler) GetAllSessionInfo() http.HandlerFunc {
 		sessionInfos, err := h.sessionService.GetAllSessionInfo()
 		if err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
-			return
+			//TODO: que faire ici (on le stop ou non ?)
+			//return
 		}
 
 		util.RenderJson(w, http.StatusOK, sessionInfos)
