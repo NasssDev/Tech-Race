@@ -75,15 +75,15 @@ func (h *SessionHandler) Start() http.HandlerFunc {
 			util.RenderJson(w, http.StatusOK, map[string]string{"status": "success", "message": "Recording stream is on", "stream": "active"})
 		}()
 
-		//videoservice := services.NewVideoService(runtime.GOOS)
-		//_, err = videoservice.StartRecording(h.sessionService)
-		//if err != nil {
-		//	util.RenderJson(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "Car video cannot record", "autopilot": isAutopilotStr, "recording": ""})
-		//	//w.Write([]byte("Session started with no recording \n"))
-		//	fmt.Println("Error starting recording while session started:", err)
-		//	//http.Error(w, err.Error(), http.StatusInternalServerError)
-		//	return
-		//}
+		videoservice := services.NewVideoService(runtime.GOOS)
+		_, err = videoservice.StartRecording(h.sessionService)
+		if err != nil {
+			util.RenderJson(w, http.StatusInternalServerError, map[string]string{"status": "error", "message": "Car video cannot record", "autopilot": isAutopilotStr, "recording": ""})
+			//w.Write([]byte("Session started with no recording \n"))
+			fmt.Println("Error starting recording while session started:", err)
+			//http.Error(w, err.Error(), http.StatusInternalServerError)
+			return
+		}
 
 		//w.Write([]byte("Session started\n"))
 		fmt.Println("session started")

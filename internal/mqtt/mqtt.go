@@ -19,7 +19,7 @@ type MQTTClient struct {
 }
 
 func NewMQTTClient(db models.DatabaseInterface) *MQTTClient {
-	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.16.82:1883")
+	opts := MQTT.NewClientOptions().AddBroker("tcp://192.168.104.82:1883")
 	client := MQTT.NewClient(opts)
 	return &MQTTClient{client: client, db: db}
 }
@@ -97,7 +97,7 @@ func (m *MQTTClient) MessageHandler(client MQTT.Client, msg MQTT.Message) {
 	//}
 	if m.isAutopilot {
 		//println("autopilot", m.isCollision, m.valueTrack)
-		c, _, err := websocket.DefaultDialer.Dial("ws://192.168.16.10/ws", nil)
+		c, _, err := websocket.DefaultDialer.Dial("ws://192.168.104.10/ws", nil)
 		if err != nil {
 			fmt.Println(err)
 			return
