@@ -35,7 +35,7 @@ func NewVideoRelay() *VideoRelay {
 func (vr *VideoRelay) run() {
 	for {
 		data := <-vr.broadcast
-		log.Printf("Broadcasting data to %d clients", len(vr.clients)) // Log client count before broadcasting
+		//log.Printf("Broadcasting data to %d clients", len(vr.clients)) // Log client count before broadcasting
 		vr.clientsLock.Lock()
 		for client := range vr.clients {
 			_, err := client.writer.Write(data)
@@ -51,7 +51,7 @@ func (vr *VideoRelay) run() {
 			}
 		}
 		vr.clientsLock.Unlock()
-		log.Println("Broadcast completed.") // Log broadcast completion
+		//log.Println("Broadcast completed.") // Log broadcast completion
 	}
 }
 
@@ -104,7 +104,7 @@ func (vr *VideoRelay) handleESP32Connection() {
 
 		reader := bufio.NewReader(conn)
 		for {
-			log.Println("Waiting for data from ESP32...")
+			//log.Println("Waiting for data from ESP32...")
 			// Read until boundary
 			_, err := reader.ReadString('\n')
 			if err != nil {
@@ -117,7 +117,7 @@ func (vr *VideoRelay) handleESP32Connection() {
 			}
 
 			// Read headers
-			log.Println("Reading headers from ESP32...")
+			//log.Println("Reading headers from ESP32...")
 			headers := make([]string, 0)
 			for {
 				line, err := reader.ReadString('\n')
@@ -150,7 +150,7 @@ func (vr *VideoRelay) handleESP32Connection() {
 			}
 
 			// Read image body
-			log.Printf("Reading image body of length %d...", contentLength)
+			//log.Printf("Reading image body of length %d...", contentLength)
 			body := make([]byte, contentLength)
 			_, err = io.ReadFull(reader, body)
 			if err != nil {
@@ -163,11 +163,11 @@ func (vr *VideoRelay) handleESP32Connection() {
 			message += strings.Join(headers, "")
 			message += "\r\n"
 
-			log.Println("Sending frame to clients...")
+			//log.Println("Sending frame to clients...")
 			// Send header and body to clients
 			vr.broadcast <- []byte(message)
 			vr.broadcast <- body
-			log.Println("Frame sent to clients.") // Log successful frame relay
+			//log.Println("Frame sent to clients.") // Log successful frame relay
 		}
 	}
 }
