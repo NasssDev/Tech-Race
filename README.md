@@ -97,6 +97,8 @@ DATABASE_URL=postgresql://root:xxxxx@xxxx/tech_race > demandez-nous l'url de la 
 - Lancer le script `./start_app.sh` va ouvrir les ports utilisés par l'API et lancer les container docker puis l'app (`go run`)
 - Sur un autre terminal : `make cloudinarace` ou sans make :  `cd pkg/other/cloudinary && go run main/main.go --port=8083`
 
+- Avec le Hot reloading : `./start_app_air.sh` 
+
 ***Installation sous Windows de Make :***
 - `make` : un utilitaire pour executer le script du Makefile.
  
