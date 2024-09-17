@@ -93,9 +93,20 @@ DATABASE_URL=postgresql://root:xxxxx@xxxx/tech_race > demandez-nous l'url de la 
 **Usage de nos scripts si Linux (ou wsl) (Attention cela kill des ports sur votre machine)**<br><br>
 > Vous devez pouvoir utiliser le mode `sudo`
 
-***Il est nécessaire d'installer make si vous avez Windows. Il est natif sur Mac et Linux.***
+***Il est nécessaire d'installer make si vous avez Windows. Il est natif sur Mac et Linux et Mac (Attention : vérifiez la compatibilité du script avec Mac et la commande sudo).***
 - Lancer le script `./start_app.sh` va ouvrir les ports utilisés par l'API et lancer les container docker puis l'app (`go run`)
 - Sur un autre terminal : `make cloudinarace` ou sans make :  `cd pkg/other/cloudinary && go run main/main.go --port=8083`
+
+***Installation sous Windows de Make :***
+- `make` : un utilitaire pour executer le script du Makefile.
+ 
+  Sur Windows il n'est pas nativement installé
+  > Si vous avez chocolatey : choco install make 
+  Info si vous n'avez pas chocolatey : https://earthly.dev/blog/makefiles-on-windows/
+
+  > Sinon explorez ceci: https://gnuwin32.sourceforge.net/packages/make.html
+
+  > Vérifiez enfin la compatibilité du script avec Windows : préferez peut-être alors l'usage de `wsl` ou d'un ubuntu avec la commande `sudo` disponible.
 
 **Manuellement :**
 - Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 8889 (adminer) et 5432 (postgres) sont libres.
