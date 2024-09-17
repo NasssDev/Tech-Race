@@ -41,7 +41,7 @@ func (d *Database) IsSessionActive() (bool, error) {
 	return count > 0, nil
 }
 func (d *Database) InsertTrackData(data models.LineTracking) error {
-	query := `INSERT INTO LineTracking (line_tracking_value , id_session,timestamp) VALUES ($1, $2, $3)`
+	query := `INSERT INTO LineTracking (line_tracking_value , id_session, timestamp) VALUES ($1, $2, $3)`
 	_, err := d.db.Exec(query, data.LineTrackingValue, data.IDSession, data.Timestamp)
 	if err != nil {
 		return err
@@ -66,6 +66,17 @@ func (d *Database) GetCurrentSessionID() (int, error) {
 	}
 	return id, nil
 }
+
+func (d *Database) GetLastSessionID() (int, error) {
+	var id int
+	query := `SELECT id FROM Session ORDER BY id DESC LIMIT 1`
+	err := d.db.Get(&id, query)
+	if err != nil {
+		return 0, err
+	}
+	return id, nil
+}
+
 func (d *Database) GetCollisionsBySessionID(sessionID int) ([]models.Collision, error) {
 	collisions := []models.Collision{}
 	query := "SELECT * FROM Collision WHERE id_session = $1"
@@ -93,4 +104,13 @@ func (d *Database) GetVideosBySessionID(sessionID int) ([]models.Video, error) {
 		return nil, err
 	}
 	return videos, nil
+}
+
+func (d *Database) InsertVideoData(data models.Video) error {
+	query := `INSERT INTO video (video_url, id_session) VALUES ($1, $2)`
+	_, err := d.db.Exec(query, data.VideoURL, data.IDSession)
+	if err != nil {
+		return err
+	}
+	return nil
 }

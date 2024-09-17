@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <!-- displays site properly based on user's device -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <!-- favicon -->
+  <link rel="icon" type="image/png" sizes="32x32" href="../static/images/favicon_io/favicon-32x32.png">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Big+Shoulders+Display:wght@700&family=Lexend+Deca&display=swap"
+        rel="stylesheet">
+  <link
+          rel="stylesheet"
+          href="https://cdn.xeiaso.net/static/pkg/iosevka/family.css"
+  />
+  <link rel="stylesheet" href="../static/css/variables.css" type="text/css">
+  <link rel="stylesheet" href="../static/css/reset.css" type="text/css">
+  <link rel="stylesheet" href="../static/css/main.css" type="text/css">
+  <link rel="stylesheet" href="../static/css/desktop.css" type="text/css">
+  <link rel="stylesheet" href="../static/css/tailwind.css" />
+  <title>Tech-race - la course des héros</title>
+
+</head>
+
+<body>
+<header class="title-container fixed top-0">
+  <h1 class="title-color title-font title-size title-margin">Documentation</h1>
+  <div class="flex gap-5 sm:my-5 flex-col sm:flex-row flex-wrap">
+    <a href="/" class="font-lexend text-transparent-white text-lg hover:text-white">Accueil</a>
+<!--    <a href="#install" class="font-lexend text-transparent-white text-lg hover:text-white">Installation</a>-->
+    <a href="#demos" class="font-lexend text-transparent-white text-lg hover:text-white">Demos</a>
+<!--    <a href="#services" class="font-lexend text-transparent-white text-lg hover:text-white">Nos Services</a>-->
+  </div>
+</header>
+<main class="docs-page px-0 pt-[346px] sm:pt-[242px]">
+  <section class="relative min-h-[500px] bg-header w-full flex items-end justify-center pb-12">
+    <div class="mt-2 absolute top-0 right-3 font-lexend flex gap-5 justify-center items-center mx-4 p-2 text-center md:p-4 w-96 rounded-xl bg-white/20 shadow-lg ring-1 ring-black/5">
+      <p class="text-lg uppercase text-center">
+        Tech Race API - version 8
+      </p>
+    </div>
+  </section>
+
+  <div id="demos" class="target:flex hidden cards-container bg-bright-orange py-[40px] px-[10px] rounded-[4px]">
+    <div data-snack-id="@devvydream/ride-car-snack" data-snack-platform="android" data-snack-preview="true"
+         data-snack-theme="dark"
+         style="overflow:hidden;background:#fbfcfd;border-radius:4px;height:505px;width:100%"></div>
+  </div>
+
+</main>
+<script async src="https://snack.expo.dev/embed.js"></script>
+</body>
+
+</html>

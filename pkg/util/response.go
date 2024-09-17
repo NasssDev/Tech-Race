@@ -3,6 +3,7 @@ package util
 import (
 	"encoding/json"
 	"net/http"
+	"text/template"
 )
 
 func RenderJson(w http.ResponseWriter, status int, data interface{}) {
@@ -11,4 +12,10 @@ func RenderJson(w http.ResponseWriter, status int, data interface{}) {
 	if err := json.NewEncoder(w).Encode(data); err != nil {
 		http.Error(w, "Internal Server Error", http.StatusInternalServerError)
 	}
+}
+
+func ServeHTML(HtmlUrl string) *template.Template {
+
+	templ := template.Must(template.ParseFiles(HtmlUrl))
+	return templ
 }

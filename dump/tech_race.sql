@@ -69,3 +69,5 @@ ALTER TABLE ONLY "public"."speed" ADD CONSTRAINT "speed_id_session_fkey" FOREIGN
 ALTER TABLE ONLY "public"."video" ADD CONSTRAINT "video_id_session_fkey" FOREIGN KEY (id_session) REFERENCES session(id) NOT DEFERRABLE;
 
 -- 2024-07-04 09:50:57.138037+00
+
+

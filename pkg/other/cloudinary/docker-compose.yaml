@@ -1,5 +1,3 @@
-version: "3.8"
-
 services:
   web:
     build:
@@ -9,10 +7,10 @@ services:
     restart: always
     tty: true
     environment:
-      - CLOUDINARY_ID= ${CLOUDINARY_ID}
-      - CLOUDINARY_URL= ${CLOUDINARY_URL}
-      - PORT=8097
+      - CLOUDINARY_ID=${CLOUDINARY_ID}
+      - CLOUDINARY_URL=${CLOUDINARY_URL}
+      - PORT=${PORT}
     ports:
-      - "8097:8097"
+      - ${PORT}:${PORT}
     volumes:
       - ./:/app
