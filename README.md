@@ -11,26 +11,31 @@
 
 Le projet final HETIC, "Tech Race", vise à développer une application mobile permettant de contrôler un véhicule à distance via un réseau sans fil. L'application offre aux utilisateurs la possibilité de piloter le véhicule, d'accéder aux données de télémétrie en temps réel et de participer à des courses autonomes.
 
-Ce projet se compose de plusieurs repositories toutes hébergés sur Github :
+Ce projet se compose de plusieurs repositories toutes hébergés sur Github : 
 - [API Tech Race](https://github.com/NasssDev/Tech-Race)
 - [App Mobile](https://github.com/Hetic-Team/tech_race_8_2024)
 - [Site web de partage des vidéos](https://site-a-venir)
 - [Programme de la voiture](https://github.com/ExploryKod/freenove_esp32_wrover)
 - [Modèle de la voiture](https://www.amazon.fr/Freenove-ESP32-WROVER-Contained-Compatible-Expressions/dp/B08X6PTQFM/ref=sr_1_5?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=1NFTVTE5M400B&dib=eyJ2IjoiMSJ9.ouyBflLDqHVkfViARMLD6Bn9gOI47kLGrM-5LMAbtJPAUgPogSQ1tQyH60VxNGSHTf-JIYDTkVL4RJ2a7-L92dQ5aqD8IliDd4MzLvffNmw65QxSItZh_qi-vPHXgzjBhvcW8Vy00EckrayFx_47OCj3W4K6Y1W0jHZgIDF7DAvRTI9XcC7oRK8T9xeUORe35q6RJ29TNUuhLCcN5fXl-WqLhsgNb2JA0XzHwnqwHaBBwj-xZ77ohEfVpUYfdyOMWf1wO01Fa42MzKl0b-UGD6PwYD-kBCJYQS3J9twWSGs.OrlAkZRIvlaYtQ2-9pywcADOLR7VY4iRx_9Ps1DkMnk&dib_tag=se&keywords=esp32+car&qid=1715602634&sprefix=esp+32+car,aps,125&sr=8-5)
 
+## Equipe Backend (ce repository) : 
 
-## Equipe Backend (ce repository) :
-
-- [Amaury FRANSSEN](https://github.com/ExploryKod)
+- [Amaury FRANSSEN](https://github.com/ExploryKod) 
 - [Nassim AISSAOUI](https://github.com/NasssDev)
 - [Justin LELUC](https://github.com/Jykiin)
 
-## Equipe frontend :
+## Equipe frontend : 
 - [Reewaz Maskey](https://github.com/reewaz001)
 - [Alexandre VISAGE](https://github.com/Aleex470)
 - [Khalifa boubacar DIONE](https://github.com/khalifadione)
 - [Achraf CHARDOUDI](https://github.com/Achkey)
 
+Ce projet se compose de plusieurs repositories toutes hébergés sur Github :
+- [API Tech Race](https://github.com/NasssDev/Tech-Race)
+- [App Mobile](https://github.com/Hetic-Team/tech_race_8_2024)
+- [Site web de partage des vidéos](https://site-a-venir)
+- [Programme de la voiture](https://github.com/ExploryKod/freenove_esp32_wrover)
+- [Modèle de la voiture](https://www.amazon.fr/Freenove-ESP32-WROVER-Contained-Compatible-Expressions/dp/B08X6PTQFM/ref=sr_1_5?__mk_fr_FR=%C3%85M%C3%85%C5%BD%C3%95%C3%91&crid=1NFTVTE5M400B&dib=eyJ2IjoiMSJ9.ouyBflLDqHVkfViARMLD6Bn9gOI47kLGrM-5LMAbtJPAUgPogSQ1tQyH60VxNGSHTf-JIYDTkVL4RJ2a7-L92dQ5aqD8IliDd4MzLvffNmw65QxSItZh_qi-vPHXgzjBhvcW8Vy00EckrayFx_47OCj3W4K6Y1W0jHZgIDF7DAvRTI9XcC7oRK8T9xeUORe35q6RJ29TNUuhLCcN5fXl-WqLhsgNb2JA0XzHwnqwHaBBwj-xZ77ohEfVpUYfdyOMWf1wO01Fa42MzKl0b-UGD6PwYD-kBCJYQS3J9twWSGs.OrlAkZRIvlaYtQ2-9pywcADOLR7VY4iRx_9Ps1DkMnk&dib_tag=se&keywords=esp32+car&qid=1715602634&sprefix=esp+32+car,aps,125&sr=8-5)
 
 ## 🎯 Objectif
 
@@ -45,19 +50,21 @@ L'objectif principal est de créer une interface intuitive pour les pilotes afin
 ## ⚙️ Configuration locale de l'API Backend (ce repository)
 
 #### 🧮 Base générale
-1. Cloner ce repository
+
+1. Cloner ce repository 
 2. Avoir installé Golang sur sa machine locale [Installation de Go](https://go.dev/doc/install)
-3. Avoir docker sur sa machine locale et avoir installé l'image docker de mosquitto : [Cliquez ici](https://github.com/ExploryKod/mosquitto-docker)
+3. Avoir docker sur sa machine locale et avoir installé l'image docker de mosquitto : [Cliquez ici](https://github.com/ExploryKod/mosquitto-docker) 
 4. Avoir postgresSQL (optionnel car on peux passer via docker)
-5. Installer MakeFile si vous êtes sur une platforme qui ne l'a pas nativement
-6. Avoir configurer votre véhicule freenov avec un esp32 ayant le programme avec les bons IP liés à vos réseaux dessus <br>
-   [voir la base de code ici](https://github.com/ExploryKod/freenove_esp32_wrover)
+5. Installer MakeFile si vous êtes sur une platforme qui ne l'a pas nativement 
+6. Avoir configurer votre véhicule freenov avec un esp32 ayant le programme avec les bons IP liés à vos réseaux dessus <br> 
+[voir la base de code ici](https://github.com/ExploryKod/freenove_esp32_wrover) 
 
 #### 🎥 Pour faire fonctionner le service de vidéos
 1. S'inscrire gratuitement sur Cloudinary : [S'inscrire sur Cloudinary](https://cloudinary.com/)
 2. Récupérer son cloudinary ID et le cloudinary URL depuis son compte
 3. Configurer le service cloudinarace (service cloudinary de Tech Race) :
    **Depuis la racine, se rendre dans `pkg/other/cloudinary/.env` :**
+
 ```
 CLOUDINARY_ID=mon-id-cloudinary-présente-sur-mon-compte
 CLOUDINARY_URL=mon-url-cloudinary-présente-sur-mon-compte
@@ -123,9 +130,9 @@ Mot de passe : password
 serveur : db 
 ```
 
+## 🧰 Matériel et Logiciel du véhicule lié à cet API
+=======
 - Importer le dump de la base de donnée présent sur `dump/tech_race_bdd.sql`
-
-## 🧰 Matériel et logiciel du véhicule lié à l'API
 
 ### Matériel et capteurs présent sur le véhicule
 - Architecture ESP32
@@ -135,7 +142,7 @@ serveur : db
 - Capteur de suivi de ligne
 - Caméra embarquée
 
-### Logiciel
+### Logiciel 
 Voir le repository : [cliquez ici](https://github.com/ExploryKod/freenove_esp32_wrover)
 - APIs de contrôle pour les roues et les capteurs
 - Données de télémétrie fournies par les capteurs
