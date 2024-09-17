@@ -90,27 +90,29 @@ DATABASE_URL=postgresql://root:xxxxx@xxxx/tech_race > demandez-nous l'url de la 
 
 2. 🛵 Aller à la racine du projet et lancer ces commandes :
 
-**Usage de nos scripts si Linux (ou wsl) (Attention cela kill des ports sur votre machine)**<br><br>
+> Remarques préalables: 
+
 > Vous devez pouvoir utiliser le mode `sudo`
 
-***Il est nécessaire d'installer make si vous avez Windows. Il est natif sur Mac et Linux <br> (Attention : vérifiez la compatibilité du script avec Mac et la commande sudo).***
+> **Il est nécessaire d'installer make si vous avez Windows.**
+> Il est natif sur Mac et Linux <br>
+> (Attention : vérifiez la compatibilité du script avec Mac et la commande sudo).
+
+### **I Commandes (shell + make) via nos scripts si Linux (ou wsl) <br> (Attention cela kill des ports sur votre machine)**<br><br>
 - Lancer le script `./start_app.sh` va ouvrir les ports utilisés par l'API et lancer les container docker puis l'app (`go run`)
 - Sur un autre terminal : `make cloudinarace` ou sans make :  `cd pkg/other/cloudinary && go run main/main.go --port=8083`
-
 - Avec le Hot reloading : `./start_app_air.sh` 
 
-***Installation sous Windows de Make :***
-- `make` : un utilitaire pour executer le script du Makefile.
+>***Installation sous Windows de Make :***
+`make` : un utilitaire pour executer le script du Makefile.
  
-  Sur Windows il n'est pas nativement installé
+  > Sur Windows il n'est pas nativement installé
   > Si vous avez chocolatey : choco install make 
-  Info si vous n'avez pas chocolatey : https://earthly.dev/blog/makefiles-on-windows/
-
+  > Info si vous n'avez pas chocolatey : https://earthly.dev/blog/makefiles-on-windows/
   > Sinon explorez ceci: https://gnuwin32.sourceforge.net/packages/make.html
-
   > Vérifiez enfin la compatibilité du script avec Windows : préferez peut-être alors l'usage de `wsl` ou d'un ubuntu avec la commande `sudo` disponible.
 
-**Manuellement :**
+### **II Manuellement (sans scripts) :**
 - Vérifier que les ports 1883 (mqtt), 8083 (cloudinarace), 9000, 8888 (pgAdmin), 8889 (adminer) et 5432 (postgres) sont libres.
 - Lancer docker : `docker compose up -d`
 - Installer les dépendances : `go mod download` et `go mod tidy`
@@ -144,7 +146,7 @@ serveur : db
 ```
 
 ## 🧰 Matériel et Logiciel du véhicule lié à cet API
-=======
+
 - Importer le dump de la base de donnée présent sur `dump/tech_race_bdd.sql`
 
 ### Matériel et capteurs présent sur le véhicule
